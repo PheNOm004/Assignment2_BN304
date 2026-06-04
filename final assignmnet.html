@@ -1,0 +1,3196 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+
+      <meta Access-Control-Allow-Origin="*">
+      <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <style>*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:       #07090e;
+  --surface:  #0c1220;
+  --surface2: #111827;
+  --surface3: #1a2438;
+  --border:   #1c2840;
+  --border2:  #253450;
+  --text:     #ccd6e8;
+  --muted:    #4e6580;
+  --accent:   #11c8b5;
+  --heat:     #f04040;
+  --cool:     #40a8f8;
+  --idle:     #24d09a;
+  --warn:     #e09030;
+  --radius:   4px;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 20px 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.header-brand { display: flex; align-items: center; gap: 12px; }
+.header-right  { display: flex; align-items: center; gap: 10px; }
+
+.unit-toggle { display: flex; gap: 2px; }
+.unit-opt {
+  padding: 4px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.unit-opt.active { background: var(--accent); border-color: var(--accent); color: #000; }
+.unit-opt:not(.active):hover { border-color: var(--accent); color: var(--text); }
+
+.brand-tag {
+  background: var(--accent);
+  color: #000;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 3px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+header h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+header h1 span { color: var(--accent); }
+
+/* ── Status badge ────────────────────────────────────────── */
+.status-badge {
+  padding: 5px 14px;
+  border-radius: 2px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: all 0.3s;
+  border: 1px solid;
+}
+
+.status-badge.idle    { background: rgba(36,208,154,0.08);  color: var(--idle); border-color: rgba(36,208,154,0.3); }
+.status-badge.heating { background: rgba(240,64,64,0.10);   color: var(--heat); border-color: rgba(240,64,64,0.35); }
+.status-badge.cooling { background: rgba(64,168,248,0.10);  color: var(--cool); border-color: rgba(64,168,248,0.35); }
+.status-badge.manual  { background: rgba(224,144,48,0.10);  color: var(--warn); border-color: rgba(224,144,48,0.35); }
+
+/* ── Layout ──────────────────────────────────────────────── */
+.row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 900px) { .row-3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .row-3, .row-2 { grid-template-columns: 1fr; } }
+
+/* ── Cards ───────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+
+.card-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.label-note {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.7;
+}
+
+.card-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.card-header-row .card-label { margin-bottom: 0; }
+
+/* ── Temperature display ─────────────────────────────────── */
+.temp-display {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.temp-value {
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.4s;
+}
+
+.temp-unit {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--muted);
+  padding-bottom: 10px;
+}
+
+.control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.control-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  flex: 1;
+}
+
+.control-adj {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 62px;
+  text-align: center;
+}
+
+.btn-adj {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface3);
+  color: var(--text);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.btn-adj:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+
+/* ── Device list ─────────────────────────────────────────── */
+.device-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.device-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border2);
+  transition: all 0.25s;
+}
+
+.device-icon { font-size: 1.1rem; }
+
+.device-name {
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.pin-tag {
+  display: inline-block;
+  background: var(--surface3);
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-family: monospace;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-left: 4px;
+  vertical-align: middle;
+  border: 1px solid var(--border2);
+}
+
+.device-state {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status-on  { color: var(--idle); }
+.status-off { color: var(--muted); }
+
+.device-item.active-heat {
+  border-left-color: var(--heat);
+  background: rgba(240,64,64,0.06);
+}
+
+.device-item.active-cool {
+  border-left-color: var(--cool);
+  background: rgba(64,168,248,0.06);
+}
+
+/* ── Outdoor weather ─────────────────────────────────────── */
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.weather-stat {
+  padding: 8px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.ws-val {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.ws-val--sm { font-size: 0.78rem; }
+
+.ws-label {
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-top: 3px;
+}
+
+.city-search {
+  display: flex;
+  gap: 8px;
+}
+
+.city-input {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: var(--radius);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.city-input:focus { border-color: var(--accent); }
+
+.btn-sm {
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  background: var(--accent);
+  border: none;
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: opacity 0.15s;
+}
+
+.btn-sm:hover { opacity: 0.85; }
+
+/* ── AI Recommendation ───────────────────────────────────── */
+.rec-box {
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border-left: 3px solid var(--accent);
+  background: rgba(17,200,181,0.05);
+  font-size: 0.83rem;
+  line-height: 1.8;
+  transition: all 0.35s;
+}
+
+.rec-box.rec-heat { border-left-color: var(--heat); background: rgba(240,64,64,0.05); }
+.rec-box.rec-cool { border-left-color: var(--cool); background: rgba(64,168,248,0.05); }
+.rec-box.rec-idle { border-left-color: var(--idle); background: rgba(36,208,154,0.05); }
+
+.stat-strip {
+  display: flex;
+  gap: 24px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.stat-item .sv {
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-item .sk {
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 3px;
+}
+
+/* ── Mode control ────────────────────────────────────────── */
+.mode-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mode-row strong { font-size: 0.92rem; }
+
+.mode-btns { display: flex; gap: 6px; }
+
+.btn-mode {
+  padding: 6px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+}
+
+.btn-mode.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+
+.btn-mode:not(.active):hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.manual-panel {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+}
+
+.manual-warn {
+  font-size: 0.68rem;
+  color: var(--warn);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.manual-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-device {
+  flex: 1;
+  min-width: 90px;
+  padding: 9px 8px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface3);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.btn-device:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+
+/* ── Chart ───────────────────────────────────────────────── */
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 180px;
+}
+
+canvas {
+  display: block;
+  width: 100% !important;
+}
+
+/* ── App layout ──────────────────────────────────────────── */
+.app-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.view-container { flex: 1; min-width: 0; }
+
+.btn-hamburger {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--text);
+  border-radius: var(--radius);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-hamburger:hover { background: var(--surface2); border-color: var(--accent); }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.sidebar {
+  width: 180px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-right: 12px;
+  padding: 6px 0;
+  transition: width 0.2s;
+  overflow: hidden;
+}
+
+.sidebar.collapsed { width: 52px; }
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-left: 2px solid transparent;
+  background: none;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.nav-btn:hover { background: var(--surface2); color: var(--text); }
+.nav-btn.active { background: var(--surface2); color: var(--accent); border-left-color: var(--accent); }
+
+.nav-icon { font-size: 1.05rem; flex-shrink: 0; }
+.nav-label { transition: opacity 0.15s; }
+.sidebar.collapsed .nav-label { opacity: 0; pointer-events: none; }
+
+/* ── Modal ───────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  width: 320px;
+  max-width: 90vw;
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.modal-field { margin-bottom: 14px; }
+
+.modal-label {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.modal-start { width: 100%; margin-top: 4px; padding: 9px; }
+
+/* ── History view ────────────────────────────────────────── */
+.range-btns { display: flex; gap: 4px; }
+
+.btn-range {
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-range.active { background: var(--accent); border-color: var(--accent); color: #000; }
+.btn-range:not(.active):hover { border-color: var(--accent); color: var(--text); }
+
+.event-log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.event-log-table th {
+  text-align: left;
+  padding: 6px 10px;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.event-log-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+
+.event-log-table tr.ev-heat td { background: rgba(240,64,64,0.05); }
+.event-log-table tr.ev-cool td { background: rgba(64,168,248,0.05); }
+.event-log-table tr.ev-fan  td { background: rgba(36,208,154,0.05); }
+
+.log-empty {
+  color: var(--muted);
+  font-size: 0.82rem;
+  padding: 16px 0;
+  text-align: center;
+}
+
+/* ── Analysis view ───────────────────────────────────────── */
+.tuning-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.tuning-hints span {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.cost-input {
+  width: 80px;
+  padding: 4px 8px;
+  border-radius: var(--radius);
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-size: 0.82rem;
+  text-align: right;
+  outline: none;
+}
+
+.cost-input:focus { border-color: var(--accent); }
+
+/* ── History chart tooltip ──────────────────────────────────────── */
+.chart-tooltip {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  min-width: 130px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.tip-time {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-bottom: 5px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 3px;
+}
+
+.tip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 0;
+}
+
+.tip-row span { color: var(--muted); }
+
+/* ── History summary strip ─────────────────────────────────────── */
+.history-summary {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  margin-bottom: 12px;
+}
+
+.hs-item {
+  flex: 1;
+  min-width: 70px;
+  text-align: center;
+  padding: 6px 8px;
+  background: var(--surface2);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.hs-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.hs-val.heat { color: var(--heat); }
+.hs-val.cool { color: var(--cool); }
+.hs-val.fan  { color: var(--idle); }
+
+.hs-lbl {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-top: 3px;
+}
+</style>
+    </head>
+    <body>
+      <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HVAC Dashboard</title>
+</head>
+<body>
+  <div id="setup-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title">HVAC Setup</div>
+      <div class="modal-field">
+        <div class="modal-label">Target Temperature</div>
+        <div class="control-adj">
+          <button class="btn-adj" onclick="modalAdjTemp(-0.5)">−</button>
+          <span class="control-val" id="modal-temp-val">22.0°C</span>
+          <button class="btn-adj" onclick="modalAdjTemp(0.5)">+</button>
+        </div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Unit</div>
+        <div class="unit-toggle">
+          <button
+            class="unit-opt active"
+            id="modal-btn-c"
+            onclick="modalSetUnit(true)"
+          >
+            °C
+          </button>
+          <button
+            class="unit-opt"
+            id="modal-btn-f"
+            onclick="modalSetUnit(false)"
+          >
+            °F
+          </button>
+        </div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">City (outdoor weather)</div>
+        <input class="city-input" id="modal-city" placeholder="Sydney" />
+      </div>
+      <button class="btn-sm modal-start" onclick="saveSetup()">
+        Start Dashboard
+      </button>
+    </div>
+  </div>
+
+  <header>
+    <div class="header-brand">
+      <button class="btn-hamburger" onclick="toggleSidebar()">☰</button>
+      <span class="brand-tag">BN304</span>
+      <h1>HVAC <span>Dashboard</span></h1>
+    </div>
+    <div class="header-right">
+      <div class="unit-toggle">
+        <button class="unit-opt active" id="btn-c" onclick="setUnit(true)">
+          °C
+        </button>
+        <button class="unit-opt" id="btn-f" onclick="setUnit(false)">°F</button>
+      </div>
+      <div id="system-badge" class="status-badge idle">Idle</div>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <nav class="sidebar" id="sidebar">
+      <button
+        class="nav-btn active"
+        id="nav-control"
+        onclick="showView('control')"
+        title="Control"
+      >
+        <span class="nav-icon">⚙️</span><span class="nav-label">Control</span>
+      </button>
+      <button
+        class="nav-btn"
+        id="nav-history"
+        onclick="showView('history')"
+        title="History"
+      >
+        <span class="nav-icon">📊</span><span class="nav-label">History</span>
+      </button>
+      <button
+        class="nav-btn"
+        id="nav-analysis"
+        onclick="showView('analysis')"
+        title="Analysis"
+      >
+        <span class="nav-icon">🤖</span><span class="nav-label">Analysis</span>
+      </button>
+    </nav>
+
+    <div class="view-container">
+      <div id="view-control">
+        <div class="row-3">
+          <div class="card">
+            <div class="card-label">Indoor Temperature</div>
+            <div class="temp-display">
+              <span class="temp-value" id="indoor-temp">--</span>
+              <span class="temp-unit" id="temp-unit">°C</span>
+            </div>
+            <div class="control-row">
+              <div class="control-group">
+                <span class="control-label">Target</span>
+                <div class="control-adj">
+                  <button class="btn-adj" onclick="adjustTarget(-0.5)">
+                    −
+                  </button>
+                  <span class="control-val" id="target-temp">22.0°C</span>
+                  <button class="btn-adj" onclick="adjustTarget(0.5)">+</button>
+                </div>
+              </div>
+              <div class="control-group">
+                <span class="control-label">Idle Band</span>
+                <div class="control-adj">
+                  <button class="btn-adj" onclick="adjustIdleBand(-0.5)">
+                    −
+                  </button>
+                  <span class="control-val" id="idle-band">±1.0°C</span>
+                  <button class="btn-adj" onclick="adjustIdleBand(0.5)">
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-label">HVAC Devices</div>
+            <div class="device-list">
+              <div class="device-item" id="heater">
+                <span class="device-icon">🔥</span>
+                <span class="device-name"
+                  >Heater <span class="pin-tag">D18</span></span
+                >
+                <span class="device-state status-off" id="heater-state"
+                  >Off</span
+                >
+              </div>
+              <div class="device-item" id="cooler">
+                <span class="device-icon">❄️</span>
+                <span class="device-name"
+                  >Cooler / AC <span class="pin-tag">D5</span></span
+                >
+                <span class="device-state status-off" id="cooler-state"
+                  >Off</span
+                >
+              </div>
+              <div class="device-item" id="fan">
+                <span class="device-icon">💨</span>
+                <span class="device-name"
+                  >Inlet Fan <span class="pin-tag">D13</span></span
+                >
+                <span class="device-state status-off" id="fan-state">Off</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header-row">
+              <div class="card-label">Outdoor Weather</div>
+              <div class="city-label" id="city-label">--</div>
+            </div>
+            <div class="weather-grid">
+              <div class="weather-stat">
+                <div class="ws-val" id="out-temp">--</div>
+                <div class="ws-label" id="out-temp-lbl">Temp °C</div>
+              </div>
+              <div class="weather-stat">
+                <div class="ws-val" id="out-feels">--</div>
+                <div class="ws-label">Feels Like</div>
+              </div>
+              <div class="weather-stat">
+                <div class="ws-val" id="out-humidity">--</div>
+                <div class="ws-label">Humidity %</div>
+              </div>
+              <div class="weather-stat">
+                <div class="ws-val" id="out-wind">--</div>
+                <div class="ws-label">Wind m/s</div>
+              </div>
+              <div class="weather-stat">
+                <div class="ws-val" id="out-pressure">--</div>
+                <div class="ws-label">Pressure hPa</div>
+              </div>
+              <div class="weather-stat">
+                <div class="ws-val ws-val--sm" id="out-conditions">--</div>
+                <div class="ws-label">Conditions</div>
+              </div>
+            </div>
+            <div class="city-search">
+              <input
+                class="city-input"
+                id="city-in"
+                placeholder="Sydney"
+                value="Sydney"
+              />
+              <button class="btn-sm" onclick="updateCity()">Update</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="card">
+            <div class="card-label">AI Recommendation</div>
+            <div class="rec-box" id="ai-rec">Waiting for sensor data...</div>
+            <div class="stat-strip">
+              <div class="stat-item">
+                <div class="sv" id="temp-diff">--</div>
+                <div class="sk">Δ from target</div>
+              </div>
+              <div class="stat-item">
+                <div class="sv" id="mode-display">Auto</div>
+                <div class="sk">Mode</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-label">System Mode</div>
+            <div class="mode-row">
+              <strong id="mode-label">Automatic</strong>
+              <div class="mode-btns">
+                <button
+                  class="btn-mode active"
+                  id="btn-auto"
+                  onclick="setMode('auto')"
+                >
+                  Auto
+                </button>
+                <button
+                  class="btn-mode"
+                  id="btn-manual"
+                  onclick="setMode('manual')"
+                >
+                  Manual
+                </button>
+              </div>
+            </div>
+            <div class="manual-panel" id="manual" style="display: none">
+              <div class="manual-warn">Manual mode — direct device control</div>
+              <div class="manual-btns">
+                <button class="btn-device" onclick="manualControl('heater')">
+                  🔥 Heater
+                </button>
+                <button class="btn-device" onclick="manualControl('cooler')">
+                  ❄️ Cooler
+                </button>
+                <button class="btn-device" onclick="manualControl('fan')">
+                  💨 Inlet Fan
+                </button>
+                <button class="btn-device" onclick="manualControl('off')">
+                  ⏹ All Off
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">
+            Temperature History <span class="label-note">— last 2 min</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="temp-chart"></canvas>
+          </div>
+        </div>
+      </div>
+      <!-- /view-control -->
+
+      <div id="view-history" style="display: none">
+        <div class="card" style="margin-bottom: 12px">
+          <div class="card-header-row">
+            <div class="card-label">Temperature Timeline</div>
+            <div class="range-btns">
+              <button
+                class="btn-range active"
+                id="range-1h"
+                onclick="loadHistory('1h')"
+              >
+                1 hr
+              </button>
+              <button
+                class="btn-range"
+                id="range-6h"
+                onclick="loadHistory('6h')"
+              >
+                6 hr
+              </button>
+              <button
+                class="btn-range"
+                id="range-24h"
+                onclick="loadHistory('24h')"
+              >
+                24 hr
+              </button>
+              <button
+                class="btn-range"
+                id="range-7d"
+                onclick="loadHistory('7d')"
+              >
+                7 days
+              </button>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="history-chart"></canvas>
+            <div id="chart-tooltip" class="chart-tooltip"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">HVAC Event Log</div>
+          <div id="history-summary" class="history-summary" style="display:none"></div>
+          <div id="event-log">
+            <div class="log-empty">No events recorded yet.</div>
+          </div>
+        </div>
+      </div>
+      <!-- /view-history -->
+
+      <div id="view-analysis" style="display: none">
+        <div class="card" style="margin-bottom: 12px">
+          <div class="card-label">Device Runtime — last 7 days</div>
+          <div class="chart-wrap" style="height: 220px">
+            <canvas id="runtime-chart"></canvas>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom: 12px">
+          <div class="card-label">System Tuning</div>
+          <div class="control-row">
+            <div class="control-group">
+              <span class="control-label">Idle Band</span>
+              <div class="control-adj">
+                <button class="btn-adj" onclick="adjustIdleBand(-0.5)">−</button>
+                <span class="control-val" id="idle-band-2">±1.0°C</span>
+                <button class="btn-adj" onclick="adjustIdleBand(0.5)">+</button>
+              </div>
+            </div>
+            <div class="control-group">
+              <span class="control-label">Shutoff Buffer</span>
+              <div class="control-adj">
+                <button class="btn-adj" onclick="adjustShutoffBuffer(-0.1)">−</button>
+                <span class="control-val" id="shutoff-buffer-val">0.3°C</span>
+                <button class="btn-adj" onclick="adjustShutoffBuffer(0.1)">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="tuning-hints">
+            <span><strong>Idle Band</strong> — how far the temperature can drift from the target before the system activates. Wider = fewer cycles, more drift. Narrower = tighter control, more cycles.</span>
+            <span><strong>Shutoff Buffer</strong> — how many degrees before the exact target the devices switch off. Set to 0 to run all the way to the target. Positive values cut devices early and let thermal momentum coast to the target, reducing overshoot. Negative values (down to −2°C) allow deliberate overshoot past the target before cutting out — useful when thermal mass is large. Must stay within the idle band.</span>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="card">
+            <div class="card-label">
+              Cost Estimate (AUD) <span class="label-note">— optional</span>
+            </div>
+            <div class="control-row">
+              <div class="control-group">
+                <span class="control-label">Electricity AUD/kWh</span>
+                <input
+                  class="cost-input"
+                  id="cost-kwh"
+                  type="number"
+                  value="25"
+                  min="1"
+                  max="100"
+                  oninput="refreshInsights()"
+                />
+              </div>
+              <div class="control-group">
+                <span class="control-label">Heater W</span>
+                <input
+                  class="cost-input"
+                  id="watt-heater"
+                  type="number"
+                  value="1000"
+                  min="100"
+                  max="5000"
+                  oninput="refreshInsights()"
+                />
+              </div>
+              <div class="control-group">
+                <span class="control-label">Cooler / AC W</span>
+                <input
+                  class="cost-input"
+                  id="watt-cooler"
+                  type="number"
+                  value="1500"
+                  min="100"
+                  max="5000"
+                  oninput="refreshInsights()"
+                />
+              </div>
+              <div class="control-group">
+                <span class="control-label">Fan W</span>
+                <input
+                  class="cost-input"
+                  id="watt-fan"
+                  type="number"
+                  value="50"
+                  min="10"
+                  max="500"
+                  oninput="refreshInsights()"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-label">Cost-Minimisation Insights</div>
+            <div class="rec-box" id="analysis-insights">
+              Switch to Analysis view to load data.
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /view-analysis -->
+    </div>
+    <!-- /view-container -->
+  </div>
+  <!-- /app-layout -->
+</body>
+
+      <script>
+        function mainScript(){
+
+  var sa = "d0ce19";
+  window.boardIP = window.location.origin;
+  var networkQueue = [];
+  var networkItemBackup = {};
+  window.codeRunning = false;
+
+  window.devices = {};
+  window.keys = {};
+  window.orientation = {
+    ACWaboutZ: 0,
+    ACWaboutY: 0,
+    ACWaboutX: 0
+  };
+
+  window.acceleration = {
+    x: 0,
+    y: 0,
+    z: 0
+  };
+  window.accelerationIncludingGravity = {
+    x: 0,
+    y: 0,
+    z: 0
+  };
+  window.rotationRate = {
+    ACWaboutZ: 0,
+    ACWaboutY: 0,
+    ACWaboutX: 0
+  };
+
+  window.board = {};
+  window.desiredBoard = {};
+
+  const DEFAULT_TIMEOUT = 4000;
+
+  // configs
+  const ANALOG_IN = 0;
+  const DIGITAL_IN = 1;
+  const DISABLED = 2;
+  const DIGITAL_OUT = 3;
+  const PWM = 4;
+  const SERVO = 5;
+  const GPS_IN = 6;
+  const GPS_OUT = 7;
+  const NPK_IN = 8;
+  const NPK_OUT = 9;
+  const DHT11_IN = 10;
+  const DS18X20_IN = 11;
+  const TTY_IN = 12;
+  const TTY_OUT = 13;
+
+  function stringToConfig(configString){
+    const temp = {
+      "ANALOG_IN"   : ANALOG_IN,
+      "DIGITAL_IN"  : DIGITAL_IN,
+      "DISABLED"    : DISABLED,
+      "DIGITAL_OUT" : DIGITAL_OUT,
+      "PWM"         : PWM,
+      "SERVO"       : SERVO,
+	  "GPS_IN"      : GPS_IN,
+	  "GPS_OUT"     : GPS_OUT,
+	  "NPK_IN"      : NPK_IN,
+      "NPK_OUT"     : NPK_OUT,
+	  "DHT11_IN"    : DHT11_IN,
+	  "DS18X20_IN"  : DS18X20_IN,
+	  "TTY_IN"      : TTY_IN,
+	  "TTY_OUT"     : TTY_OUT,
+    };
+    return temp[configString];
+  }
+
+  function configToString(config){
+    let temp = {};
+    temp[ String(ANALOG_IN) ]   = "ANALOG_IN";
+    temp[ String(DIGITAL_IN) ]  = "DIGITAL_IN";
+    temp[ String(DISABLED) ]    = "DISABLED";
+    temp[ String(DIGITAL_OUT) ] = "DIGITAL_OUT";
+    temp[ String(PWM) ]         = "PWM";
+    temp[ String(SERVO) ]       = "SERVO";
+	temp[ String(GPS_IN) ]      = "GPS_IN";
+    temp[ String(GPS_OUT) ]     = "GPS_OUT";
+	temp[ String(NPK_IN) ]      = "NPK_IN";
+    temp[ String(NPK_OUT) ]     = "NPK_OUT";
+	temp[ String(DHT11_IN) ]    = "DHT11_IN";
+	temp[ String(DS18X20_IN) ]  = "DS18X20_IN";
+	temp[ String(TTY_IN) ]      = "TTY_IN";
+	temp[ String(TTY_OUT) ]     = "TTY_OUT";
+    return temp[ String(config) ];
+  }
+  function ESP32Constructor(){
+    let res = new Map();
+
+    res.set( 'D2',
+      {
+        options:["DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN"],
+      }
+    );
+    res.set( 'D4',
+      {
+        options:["DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN", "DS18X20_IN"],
+      }
+    );
+    res.set( 'D5',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO" ],
+      }
+    );
+		res.set( 'D12',
+			{
+				options: [ "DIGITAL_OUT", "PWM", "SERVO" ],
+			}
+		);
+    res.set( 'D13',
+      {
+        options:[ "DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN" ],
+      }
+    );
+    res.set( 'D14',
+      {
+        options:[ "DIGITAL_OUT", "PWM", "SERVO" ],
+      }
+    );
+    res.set( 'D15',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO" ],
+      }
+    );
+    res.set( 'RX2',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN", "GPS_IN", "NPK_IN", "TTY_IN" ],
+      }
+    );
+    res.set( 'TX2',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN", "GPS_OUT", "NPK_OUT", "TTY_OUT" ],
+      }
+    );
+    res.set( 'D18',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN" ],
+      }
+    );
+    res.set( 'D19',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN" ],
+      }
+    );
+    res.set( 'D21',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN" ],
+      }
+    );
+    res.set( 'D22',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN" ],
+      }
+    );
+    res.set( 'D23',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN", "DHT11_IN" ],
+      }
+    );
+    res.set( 'D25',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN" ], // DAC
+      }
+    );
+    res.set( 'D26',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN" ], // DAC
+      }
+    );
+    res.set( 'D27',
+      {
+        options: [ "DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN" ],
+      }
+    );
+    res.set( 'D32',
+      {
+        options: [ "DIGITAL_OUT", "DIGITAL_IN", "PWM", "SERVO", "ANALOG_IN" ],
+      }
+    );
+    res.set( 'D33',
+      {
+        options: [ "DIGITAL_OUT", "DIGITAL_IN", "PWM", "SERVO", "ANALOG_IN" ],
+      }
+    );
+    res.set( 'D34',
+      {
+        options: [ "DIGITAL_IN", "ANALOG_IN" ],
+      }
+    );
+    res.set( 'D35',
+      {
+        options: [ "DIGITAL_IN", "ANALOG_IN" ],
+      }
+    );
+    res.set( 'VP',
+      {
+        options: [ "DIGITAL_IN", "ANALOG_IN" ],
+      }
+    );
+		res.set( 'RNG1',
+      {
+        options: [ "ANALOG_IN" ],
+      }
+    );
+    res.set( 'RNG2',
+      {
+        options: [ "ANALOG_IN" ],
+      }
+    );
+    res.set( 'VN',
+      {
+        options: [ "DIGITAL_IN", "ANALOG_IN" ],
+      }
+    );
+
+    [...res.keys()].forEach( ( pinName, index ) => {
+      const workingPin = res.get( pinName );
+      res.get( pinName ).index = index;
+      workingPin.name = "";
+      workingPin.value = 0;
+      workingPin.options.unshift("DISABLED");
+      workingPin.config = workingPin.options[0];
+    } );
+
+    return res;
+  }
+  function nodeMCUConstructor(){
+    let res = new Map();
+
+    res.set( 'D0',
+      {
+        options:["DIGITAL_OUT"],
+        index: 0
+      }
+    );
+    res.set( 'D1',
+      {
+        options:["DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN"],
+        index: 2
+      }
+    );
+    res.set( 'D2',
+      {
+        options:["DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN"],
+        index: 4
+      }
+    );
+    res.set( 'D3',
+      {
+        options:["DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN"],
+        index: 6
+      }
+    );
+    res.set( 'D4',
+      {
+        options:["DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN"],
+        index: 8
+      }
+    );
+    res.set( 'D5',
+      {
+        options:["DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN"],
+        index: 10
+      }
+    );
+    res.set( 'D6',
+      {
+        options:["DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN"],
+        index: 12
+      }
+    );
+    res.set( 'D7',
+      {
+        options:["DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN"],
+        index: 14
+      }
+    );
+    res.set( 'D8',
+      {
+        options:["DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN"],
+        index: 16
+      }
+    );
+    res.set( 'D9',
+      {
+        options:["DIGITAL_OUT", "DIGITAL_IN"],
+        index: 18
+      }
+    );
+    res.set( 'D10',
+      {
+        options:["DIGITAL_OUT", "DIGITAL_IN"],
+        index: 20
+      }
+    );
+    res.set( 'A0',
+      {
+        options:["ANALOG_IN"],
+        index: 22
+      }
+    );
+
+    [...res.keys()].forEach( (pinName) => {
+      const workingPin = res.get( pinName );
+      workingPin.name = "";
+      workingPin.value = 0;
+      workingPin.options.unshift("DISABLED");
+      workingPin.config = workingPin.options[0];
+    } );
+
+    return res;
+  }
+
+
+  function stemselBoardConstructor(){
+    let res = new Map();
+    res.set( 'A3',
+      {
+        options:["DIGITAL_IN"],
+        index: 0
+      }
+    );
+    res.set( 'B4',
+      {
+        options:["DIGITAL_OUT","DIGITAL_IN","ANALOG_IN"], // supports I2C and SPI
+        index: 2
+      }
+    );
+    res.set( 'B6',
+      {
+        options:["DIGITAL_OUT","DIGITAL_IN"], // supports I2C and SPI
+        index: 4
+      }
+    );
+    res.set( 'C0',
+      {
+        options:["DIGITAL_OUT","DIGITAL_IN","ANALOG_IN"],
+        index: 6
+      }
+    );
+    res.set( 'C1',
+      {
+        options:["DIGITAL_OUT","DIGITAL_IN","ANALOG_IN"],
+        index: 8
+      }
+    );
+    res.set( 'C2',
+      {
+        options:["DIGITAL_OUT","DIGITAL_IN","ANALOG_IN"],
+        index: 10
+      }
+    );
+    res.set( 'C3',
+      {
+        options:["DIGITAL_OUT"],
+        index: 12
+      }
+    );
+    res.set( 'C4',
+      {
+        options:["DIGITAL_OUT","DIGITAL_IN"],
+        index: 14
+      }
+    );
+    res.set( 'C5',
+      {
+        options:["DIGITAL_OUT","DIGITAL_IN"],
+        index: 16
+      }
+    );
+    res.set( 'C6',
+      {
+        options:["DIGITAL_OUT"],
+        index: 18
+      }
+    );
+    res.set( 'C7',
+      {
+        options:["DIGITAL_OUT","DIGITAL_IN","ANALOG_IN"],
+        index: 20
+      }
+    );
+    res.set( 'GPIO0',
+      {
+        options:["DIGITAL_OUT", "PWM", "SERVO", "DIGITAL_IN"],
+        index: 22
+      }
+    );
+
+    [...res.keys()].forEach( ( pinName, index ) => {
+      const workingPin = res.get( pinName );
+      workingPin.name = "";
+      workingPin.value = 0;
+      workingPin.options.unshift("DISABLED");
+      workingPin.config = workingPin.options[0];
+    } );
+
+    return res;
+  }
+
+  window.boards = {
+    'STEMSEL': stemselBoardConstructor(),
+    'NodeMCU': nodeMCUConstructor(),
+    'ESP32': ESP32Constructor(),
+  };
+
+  window.supportedBoards = Object.keys( boards );
+
+  window.deepCopy = function(original){
+    return JSON.parse(JSON.stringify(original));
+  }
+
+  function XsaFunc(){
+    let httpReq = new XMLHttpRequest();
+    httpReq.open("GET",`${boardIP}/sa`,true);
+    httpReq.onload = function() {
+      let receivedText = httpReq.responseText; 
+      sa = receivedText;
+      while(receivedText != sa)
+        alert("Security error");
+    }
+    httpReq.open("GET",`${boardIP}/sa`,true);
+    networkManager().enqueue({httpRequest:httpReq});
+  }
+ 
+  function saFunc(){
+    let httpReq = new XMLHttpRequest();
+    httpReq.open("GET",`${boardIP}/sa`,true);
+    httpReq.onload = function() {
+      let receivedText = httpReq.responseText; 
+      while(receivedText != sa)
+        alert("Security error");
+    }
+    httpReq.open("GET",`${boardIP}/sa`,true);
+    networkManager().enqueue({httpRequest:httpReq});
+  }
+
+
+  function formatToHex( num ){
+    return num.toString(16).padStart(2,"0")
+  }
+
+  function shouldUpdateBoard(){
+    const res = [...board.keys()].reduce(
+      (accumulator, pin) => {
+        return (
+          accumulator ||
+          ( desiredBoard.get( pin ).config == "ANALOG_IN" ) ||
+          ( desiredBoard.get( pin ).config == "DIGITAL_IN" ) ||
+		  ( desiredBoard.get( pin ).config == "GPS_IN" ) ||
+		  ( desiredBoard.get( pin ).config == "NPK_IN" ) ||
+		  ( desiredBoard.get( pin ).config == "DHT11_IN" ) ||
+		  ( desiredBoard.get( pin ).config == "DS18X20_IN" ) ||
+		  ( desiredBoard.get( pin ).config == "TTY_IN" ) ||
+          // ( desiredBoard.get( pin ).config == "PWM" ) ||
+          // ( desiredBoard.get( pin ).config == "SERVO" ) ||
+          ( desiredBoard.get( pin ).config != board.get( pin ).config ) ||
+          ( desiredBoard.get( pin ).value != board.get( pin ).value )
+        );
+      },
+      false
+    );
+    
+    // console.log( res );
+    return res;
+  }
+
+  function timeoutFunc(event){
+    networkManager().performNextRequest();
+    if( window.hasOwnProperty( 'setNetworkStatus' ) ){
+      setNetworkStatus( 'Timed Out' );
+    }
+    console.log('timed out');
+    console.log( event);
+  }
+  function errorFunc(event){
+    networkManager().performNextRequest();
+    console.log('Error on httpRequest');
+    console.log(event);
+  }
+
+  var theNetworkManager = null;
+  class NetworkManager{
+  
+    constructor(){
+      this.queue = [];
+    }
+    
+    enqueue(httpRequest) {
+      this.queue.push(httpRequest);
+    }
+    
+    run(){
+      this.performNextRequest();
+    }
+    
+    performNextRequest(){
+      var workingOnLoad;
+      var networkItem;
+      var timedout = false;
+      if( this.queue.length != 0 ){
+        networkItem = this.queue.shift();
+        
+        try {
+          if( networkItem.hasOwnProperty( 'data' ) ){
+            networkItem.httpRequest.send( networkItem.data )
+          }else{
+            networkItem.httpRequest.send();
+          }
+        } catch (err) {
+          //console.error("Failed to execute queued request:", err);  // Commenting this out purely because it floods the console, works fine otherwise
+          setTimeout( "networkManager().performNextRequest();", 50 );
+          return;
+        }
+        workingOnLoad = networkItem.httpRequest.onload;
+        networkItem.httpRequest.onload = ( event ) => {
+          setTimeout( "networkManager().performNextRequest();", 50 );
+          if( networkItem.httpRequest.status == 200 ){
+            workingOnLoad( event );
+          }else{
+            console.log(
+              `Error: received network status = ${ networkItem.httpRequest.status }`
+            );
+          }
+        }
+        networkItem.httpRequest.timeout = DEFAULT_TIMEOUT;
+        networkItem.httpRequest.ontimeout = timeoutFunc;
+        networkItem.httpRequest.onerror= errorFunc;
+      }else{ // process board requests
+        if( window.hasOwnProperty( 'setNetworkStatus' ) ){  // hack for control page
+          setNetworkStatus( 'Active' );
+        }
+
+        if( shouldUpdateBoard() ){
+          let updateBoardRequest = {};
+          updateBoardRequest.httpRequest = new XMLHttpRequest();
+          let sendBoard = [ ...desiredBoard.keys() ].reduce(
+            ( accumulator, pin ) => {
+              const workingPin = desiredBoard.get( pin );
+              return ('' + accumulator +
+                formatToHex( stringToConfig( workingPin.config ) ) +
+                formatToHex( workingPin.value )
+              );
+            },
+            ''
+          );
+          updateBoardRequest.httpRequest.open(
+            "GET",
+            `${ boardIP }/update_board_${ theBoardName }/${ sendBoard }`,
+            true
+          );
+          updateBoardRequest.httpRequest.onload = function(){
+            const receivedText = updateBoardRequest.httpRequest.responseText;
+            let receivedArray = [];
+            let workingPin;
+            for(let i = 0; i < receivedText.length; i+=2){
+              receivedArray.push(
+              	'' + receivedText[ i ] + receivedText[ i + 1 ]
+              );
+            }
+            receivedArray = receivedArray.map( ( value ) => parseInt( value, 16 ) );
+            let pinIterator = board.entries();
+            for( let i = 0; i < receivedArray.length; i+=2){
+              const workingPinString = pinIterator.next().value[ 0 ];
+              const receivedConfig = configToString( receivedArray[ i ] );
+              const receivedValue = receivedArray[ i+1 ];
+
+              workingPin = board.get( workingPinString );
+              // console.log(workingPin);
+
+              if( document.getElementById( 'control-section' ) != null ){
+                redrawPinRow( workingPinString, receivedValue, receivedConfig );
+              }
+              workingPin.value = receivedValue;
+              workingPin.config = receivedConfig;
+            }
+          }
+          this.enqueue( updateBoardRequest );
+          this.performNextRequest();
+        }else{
+          setTimeout( "networkManager().performNextRequest();", 25 );
+        }
+      }
+    }
+    
+  } // end class definition
+  
+  window.networkManager = function(){
+    if( theNetworkManager == null ){
+      theNetworkManager = new NetworkManager();
+    }
+    return theNetworkManager;
+  };
+
+  window.flipPin = function(pinName){
+    const setValue = ((board.get(pinName).value == 0) ? 1 : 0);
+    setPin(pinName, setValue)
+  };
+
+  window.turnOn = function(pinName){
+    setPin(pinName, 1);
+  };
+  window.turnOff = function(pinName){
+    setPin(pinName, 0);
+  };
+  window.TurnOn = turnOn;
+  window.TurnOff = turnOff;
+
+  window.mSec = function(delay){
+    return (
+      new Promise(
+        (resolve) => setTimeout(
+          () => resolve(true),
+          delay
+        )
+      )
+    );
+  };
+
+  window.analogIn = function(pinName){
+    return board.get( pinName ).value;
+  };
+  window.digitalIn = analogIn;
+
+  window.setPin = function(pinName, value){
+    desiredBoard.get(pinName).value = value;
+  };
+
+  window.setServo = function( pinName, value ){
+    let res = value * ((125-30)/180) + 30;
+    res = Math.max( 30, value );
+    res = Math.min( 125, value );
+    res = Math.floor( res );
+    setPin( pinName, res );
+  }
+  
+  let GPS_String = "No data on GPS sensor";
+  window.GPSIn = function(){
+	let httpReq = new XMLHttpRequest();
+    httpReq.open("GET",`${boardIP}/gps`,true);
+    httpReq.onload = function() {
+      GPS_String = httpReq.responseText; 
+    }
+    httpReq.open("GET",`${boardIP}/gps`,true);
+    networkManager().enqueue({httpRequest:httpReq});
+	httpReq.send();
+	//let GPS_String = '***';
+      return GPS_String;
+   };
+   
+   let NPK_String = "No data on NPK Sensor";
+   window.NPKIn = function(){
+	let httpReq = new XMLHttpRequest();
+    httpReq.open("GET",`${boardIP}/npk`,true);
+    httpReq.onload = function() {
+      NPK_String = httpReq.responseText; 
+    }
+    httpReq.open("GET",`${boardIP}/npk`,true);
+    networkManager().enqueue({httpRequest:httpReq});
+	httpReq.send();
+	//let GPS_String = '***';
+      return NPK_String;
+   };
+   
+   let DHT11_String = "No data on DHT11 Sensor";
+   window.DHT11_In = function(){
+	let httpReq = new XMLHttpRequest();
+    httpReq.open("GET",`${boardIP}/dht11`,true);
+    httpReq.onload = function() {
+      DHT11_String = httpReq.responseText; 
+    }
+    httpReq.open("GET",`${boardIP}/dht11`,true);
+    networkManager().enqueue({httpRequest:httpReq});
+	httpReq.send();
+      return DHT11_String;
+   };
+   
+   let DS18X20_String = "No data on DS18X20 Sensor";
+   window.DS18X20_In = function(){
+	let httpReq = new XMLHttpRequest();
+    httpReq.open("GET",`${boardIP}/ds18x20`,true);
+    httpReq.onload = function() {
+      DS18X20_String = httpReq.responseText; 
+    }
+    httpReq.open("GET",`${boardIP}/ds18x20`,true);
+    networkManager().enqueue({httpRequest:httpReq});
+	httpReq.send();
+      return DS18X20_String;
+   };
+   
+   let TTY_String = "No data on TTY Sensor";
+   window.TTY_In = function(){
+	let httpReq = new XMLHttpRequest();
+    httpReq.open("GET",`${boardIP}/tty`,true);
+    httpReq.onload = function() {
+      TTY_String = httpReq.responseText; 
+    }
+    httpReq.open("GET",`${boardIP}/tty`,true);
+    networkManager().enqueue({httpRequest:httpReq});
+	httpReq.send();
+      return TTY_String;
+   };
+   
+   let TTY_OutString = "TTY Output String";
+   window.TTY_Out = function(TTYPostData){
+	let httpReq = new XMLHttpRequest();
+    httpReq.open("POST",`${boardIP}/ttyOUT`,true);
+    httpReq.onload = function() {
+      TTY_OutString = httpReq.responseText; 
+    }
+    httpReq.open("POST",`${boardIP}/ttyOUT`,true);
+    networkManager().enqueue({httpRequest:httpReq});
+	//let TTYPostData = "Longer length TTY Data Posted from MainScript"
+	httpReq.send(TTYPostData);
+      return TTY_OutString;
+   };
+   
+   //Request Data from Micro Python
+   let MPyIn_String = "No data from Micro Python";
+   window.MPyIn = function(){
+	  let httpReq = new XMLHttpRequest();
+    httpReq.open("GET",`${boardIP}/MPyIn`,true);
+    httpReq.onload = function() {
+      MPyIn_String = httpReq.responseText;
+    }
+    httpReq.open("GET",`${boardIP}/MPyIn`,true);
+    networkManager().enqueue({httpRequest:httpReq});
+	  httpReq.send();
+    return MPyIn_String;
+   };
+   
+   let MPyOut_String = "MPyOut Output String";
+   window.MPyOut = function(MPyOutData){
+	  let httpReq = new XMLHttpRequest();
+    httpReq.open("POST",`${boardIP}/MPyOut`,true);
+    httpReq.onload = function() {
+      MPyOut_String = httpReq.responseText;
+    }
+    httpReq.open("POST",`${boardIP}/MPyOut`,true);
+    networkManager().enqueue({httpRequest:httpReq});
+	  //let TTYPostData = "Longer length TTY Data Posted from MainScript"
+	  httpReq.send(MPyOutData);
+    return MPyOut_String;
+   };
+	   
+  window.turnOffOutputs = function(){
+    [ ...board.keys() ].filter((portName) => {
+      return (board.get( portName ).config == "DIGITAL_OUT");
+    }).forEach( (portName) => {
+      turnOff(portName);
+    });
+  };
+
+  var keyDownHandler = (event) => {
+    keys[event.key] = true;
+  };
+  var keyUpHandler = (event) => {
+    keys[event.key] = false;
+  };
+
+  function setupKeyboard(){
+    document.onkeydown = keyDownHandler;
+    document.onkeyup = keyUpHandler;
+  }
+
+  window.orientationStuff = {};
+  window.deviceOrientationHandler = function(event) {
+    orientationStuff.ACWaboutZ = event.alpha;
+    orientationStuff.ACWaboutY = event.beta;
+    orientationStuff.ACWaboutX = event.gamma;
+    // window.orientation = orientationStuff;
+  };
+
+  function setupMovementAndOrientation(){
+    window.addEventListener(
+      'deviceorientation',
+      deviceOrientationHandler,
+      false
+    );
+    window.addEventListener('devicemotion', function(event){
+      acceleration.x = new Number(event.acceleration.x);
+      acceleration.y = new Number(event.acceleration.y);
+      acceleration.z = new Number(event.acceleration.z);
+      // alert( acceleration.z );
+
+      accelerationIncludingGravity.x = new Number(
+        event.accelerationIncludingGravity.x
+      );
+      accelerationIncludingGravity.y = new Number(
+        event.accelerationIncludingGravity.y
+      );
+      accelerationIncludingGravity.z = new Number(
+        event.accelerationIncludingGravity.z
+      );
+      // alert( accelerationIncludingGravity.z );
+
+      rotationRate.ACWaboutZ = new Number(event.rotationRate.alpha);
+      rotationRate.ACWaboutY = new Number(event.rotationRate.beta);
+      rotationRate.ACWaboutX = new Number(event.rotationRate.gamma);
+      // alert( rotationRate.ACWaboutZ );
+    }, false);
+  }
+
+  function isPreview(){
+    if( window.self !== window.top ){
+      return Boolean( parent.mainScript );
+  	}
+  	return false;
+  }
+
+  async function getMediaDevices( constraints){
+    res = await navigator.mediaDevices.getUserMedia(constraints);
+    return res;
+  }
+  window.theBoardName = "";
+  window.setupBoard = function( boardName ){
+    if( !isPreview() ){
+      theBoardName = boardName;
+      this.window.board = boards[ boardName ];
+
+      desiredBoard = new Map();
+
+      [...board.entries()].forEach( ([pinName, pin], index) => {
+        desiredBoard.set( pinName, deepCopy( pin ) );
+      });
+    }else{
+      theBoardName = parent.theBoardName;
+      this.window.board = parent.board;
+      desiredBoard = parent.desiredBoard;
+    }
+
+    
+  }
+
+  window.setPinConfig = function( pinName, config ){
+    desiredBoard.get(pinName).config = config;
+  };
+
+  window.startRunlinc = function( boardName ){
+    /* SETUP */
+    //XsaFunc();
+    //saFunc();
+    setupKeyboard();
+    setupMovementAndOrientation();
+    setupBoard( boardName );
+    if( !isPreview() ){
+      networkManager().run();
+    }
+    
+  }
+}
+        mainScript();
+        boardIP = 'http://192.168.137.105';
+        startRunlinc( 'ESP32' );
+        var Led = 'D2';var tempSensor = 'D4';var GreenLed = 'D5';var InletFan = 'D13';var FanEnable = 'D14';var RedLed = 'D18';
+        setPinConfig('D2','DIGITAL_OUT');setPinConfig('D4','DS18X20_IN');setPinConfig('D5','DIGITAL_OUT');setPinConfig('D12','DISABLED');setPinConfig('D13','DIGITAL_OUT');setPinConfig('D14','DIGITAL_OUT');setPinConfig('D15','DISABLED');setPinConfig('RX2','DISABLED');setPinConfig('TX2','DISABLED');setPinConfig('D18','DIGITAL_OUT');setPinConfig('D19','DIGITAL_OUT');setPinConfig('D21','DISABLED');setPinConfig('D22','DISABLED');setPinConfig('D23','DISABLED');setPinConfig('D25','DISABLED');setPinConfig('D26','DISABLED');setPinConfig('D27','DISABLED');setPinConfig('D32','DISABLED');setPinConfig('D33','DISABLED');setPinConfig('D34','DISABLED');setPinConfig('D35','DISABLED');setPinConfig('VP','DISABLED');setPinConfig('RNG1','DISABLED');setPinConfig('RNG2','DISABLED');setPinConfig('VN','DISABLED');
+        // ── Global state ─────────────────────────────────────────────────
+var isAutomatic  = true;        // true = auto mode, false = manual
+var hvacState    = 'idle';      // 'idle' | 'heating' | 'cooling'
+var targetTemp   = 22.0;        // desired indoor temp (always stored in °C)
+var idleBand     = 1.0;         // ±°C dead-band before HVAC activates
+var SHUTOFF_BUFFER = 0.3;       // °C before target to cut devices — thermal momentum carries the rest
+var outdoorTemp  = null;        // from OpenWeatherMap (°C)
+var outdoorFeels = null;
+var outdoorHum   = null;
+var outdoorDesc  = '--';
+var currentCity  = 'Sydney';
+var tempHistory  = [];          // ring buffer: { ts, temp, target }
+var isCelsius    = true;
+var MAX_HISTORY  = 60;          // 60 × 2 s = 2 min of live history
+
+const WEATHER_KEY         = '5732f6a4fa41c14b18de41eb88a325be';
+const FAN_MIN_RUN_MINS    = 10; // minimum fan run before appliance is added (fixed)
+
+// ── PocketBase ────────────────────────────────────────────────────
+const PB          = 'http://localhost:8090';
+var settingsId    = null;
+var openEventId   = null;
+var prevHvacState    = 'idle';
+var fanStartTime     = null;
+var outdoorWarmPolls = 0;
+var outdoorCoolPolls = 0;
+var currentRange  = '1h';
+var analysisCache = [];
+var manualDevice  = 'idle';
+var lastKnownTemp = null;
+var _histMeta     = null;
+var _dbTick       = 0;        // counts loop cycles; DB write happens every 15th (≈30 s)
+var _showDotLabels = true;    // show/hide temperature labels on event dots in history chart
+var STATE_COLORS  = {
+    heating:      '#f04040',
+    'fan+heater': '#f87060',
+    'fan-heat':   '#e09030',
+    cooling:      '#40a8f8',
+    'fan+ac':     '#2bc4d8',
+    fan:          '#24d09a',
+    idle:         '#4e6580'
+};
+
+var modalTargetTemp = 22.0;
+var modalIsCelsius  = true;
+
+// ── Helpers ───────────────────────────────────────────────────────
+function $(id) { return document.getElementById(id); }
+
+function dispTemp(c)  { return (isCelsius ? c : c*9/5+32).toFixed(1); }
+function dispDelta(d) { return (isCelsius ? d : d*9/5).toFixed(1); }
+function dispUnit()   { return isCelsius ? '°C' : '°F'; }
+function dispBand()   { return '±' + dispDelta(idleBand) + dispUnit(); }
+// Convenience: temperature value + unit in one string (e.g. "22.0°C")
+function tempStr(c)   { return dispTemp(c) + dispUnit(); }
+
+function initCanvas(id, fallbackH) {
+    var c = $(id); if (!c) return null;
+    var dpr = window.devicePixelRatio || 1;
+    var rect = c.parentElement.getBoundingClientRect();
+    var W = rect.width || 600, H = rect.height || (fallbackH || 180);
+    c.width = W*dpr; c.height = H*dpr;
+    c.style.width = W+'px'; c.style.height = H+'px';
+    var ctx = c.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle = '#0c1220'; ctx.fillRect(0,0,W,H);
+    return {ctx:ctx, W:W, H:H};
+}
+
+function pbPost(path, body) {
+    return fetch(PB+path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})
+        .then(function(r){return r.ok?r:null;}).catch(function(){return null;});
+}
+function pbPatch(path, body) {
+    return fetch(PB+path, {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})
+        .then(function(r){return r.ok?r:null;}).catch(function(){return null;});
+}
+
+// ── Unit toggle ───────────────────────────────────────────────────
+function setUnit(celsius) {
+    if (isCelsius === celsius) {
+        // Clicking the already-active unit button toggles dot labels on the history chart
+        _showDotLabels = !_showDotLabels;
+        if ($('view-history').style.display !== 'none') loadHistory(currentRange);
+        return;
+    }
+    isCelsius = celsius;
+    $('btn-c').className = 'unit-opt' + (celsius  ? ' active' : '');
+    $('btn-f').className = 'unit-opt' + (!celsius ? ' active' : '');
+    var u = dispUnit();
+    $('temp-unit').innerText    = u;
+    $('target-temp').innerText  = dispTemp(targetTemp) + u;
+    $('idle-band').innerText    = dispBand();
+    $('out-temp-lbl').innerText = 'Temp ' + u;
+    if (outdoorTemp  !== null) $('out-temp').innerText  = dispTemp(outdoorTemp);
+    if (outdoorFeels !== null) $('out-feels').innerText = dispTemp(outdoorFeels) + u;
+    patchSettings();
+}
+
+// ── Mode ──────────────────────────────────────────────────────────
+function setMode(mode) {
+    if (!isAutomatic && mode === 'manual') return;
+    if (isAutomatic  && mode === 'auto')   return;
+    if (mode === 'manual') {
+        if (prevHvacState !== 'idle') closeHvacEvent(lastKnownTemp);
+        isAutomatic = false;
+        hvacState = 'idle';
+        manualDevice = 'idle';
+        prevHvacState = 'idle';
+        setBadge('manual', 'Manual');
+        $('mode-display').innerText = 'Manual';
+        updateRec('Manual mode — device control active. AI monitoring continues.', '');
+    } else {
+        if (manualDevice !== 'idle') closeHvacEvent(lastKnownTemp);
+        isAutomatic = true;
+        manualDevice = 'idle';
+        prevHvacState = 'idle';
+        $('mode-display').innerText = 'Auto';
+    }
+    $('mode-label').innerText = isAutomatic ? 'Automatic' : 'Manual';
+    $('btn-auto').className   = 'btn-mode' + (isAutomatic  ? ' active' : '');
+    $('btn-manual').className = 'btn-mode' + (!isAutomatic ? ' active' : '');
+    $('manual').style.display = isAutomatic ? 'none' : 'block';
+}
+
+// ── Target, band & shutoff buffer ─────────────────────────────────
+function adjustTarget(delta) {
+    targetTemp = Math.max(10, Math.min(35, Math.round((targetTemp+delta)*2)/2));
+    $('target-temp').innerText = dispTemp(targetTemp) + dispUnit();
+    patchSettings();
+}
+
+function adjustIdleBand(delta) {
+    idleBand = Math.max(0.5, Math.min(3.0, Math.round((idleBand+delta)*2)/2));
+    SHUTOFF_BUFFER = parseFloat(Math.min(SHUTOFF_BUFFER, Math.max(-2, idleBand - 0.2)).toFixed(1));
+    $('idle-band').innerText = dispBand();
+    var el2=$('idle-band-2'); if (el2) el2.innerText=dispBand();
+    var sbEl=$('shutoff-buffer-val'); if (sbEl) sbEl.innerText=dispDelta(SHUTOFF_BUFFER)+dispUnit();
+    patchSettings();
+}
+
+function adjustShutoffBuffer(delta) {
+    // Clamp -2.0–(idleBand - 0.2). Negative values let the system overshoot the target before cutting out.
+    SHUTOFF_BUFFER = parseFloat(Math.max(-2, Math.min(idleBand - 0.2, Math.round((SHUTOFF_BUFFER + delta) * 10) / 10)).toFixed(1));
+    var el=$('shutoff-buffer-val'); if (el) el.innerText=dispDelta(SHUTOFF_BUFFER)+dispUnit();
+    patchSettings();
+}
+
+// ── Manual control ────────────────────────────────────────────────
+function allOff() { [RedLed, GreenLed, InletFan].forEach(turnOff); }
+
+function manualControl(cmd) {
+    if (isAutomatic) { alert('Switch to Manual mode first.'); return; }
+    if (manualDevice !== 'idle') closeHvacEvent(lastKnownTemp);
+    allOff();
+    ['heater','cooler','fan'].forEach(function(d) { setDevice(d, false, ''); });
+    if (cmd === 'heater') {
+        turnOn(RedLed);
+        setDevice('heater', true, 'heat');
+        manualDevice = 'heating';
+        setBadge('heating', 'Heating');
+        updateRec('Manual: Heater on.', 'heat');
+    } else if (cmd === 'cooler') {
+        turnOn(GreenLed);
+        setDevice('cooler', true, 'cool');
+        manualDevice = 'cooling';
+        setBadge('cooling', 'Cooling');
+        updateRec('Manual: Cooler / AC on.', 'cool');
+    } else if (cmd === 'fan') {
+        turnOn(InletFan);
+        setDevice('fan', true, 'cool');
+        manualDevice = 'fan';
+        setBadge('cooling', 'Cooling');
+        updateRec('Manual: Inlet fan on.', 'cool');
+    } else {
+        manualDevice = 'idle';
+        setBadge('manual', 'Manual');
+        updateRec('Manual mode — all devices off.', '');
+    }
+    prevHvacState = manualDevice;
+    if (manualDevice !== 'idle') openHvacEvent(manualDevice, lastKnownTemp);
+}
+
+// ── DOM helpers ───────────────────────────────────────────────────
+function setDevice(name, active, type) {
+    $(name).className = 'device-item' + (active ? (type==='heat' ? ' active-heat' : ' active-cool') : '');
+    var s = $(name+'-state');
+    s.innerText = active ? 'Active' : 'Off';
+    s.className = 'device-state ' + (active ? 'status-on' : 'status-off');
+}
+
+function setBadge(type, label) {
+    $('system-badge').className = 'status-badge ' + type;
+    $('system-badge').innerText = label;
+}
+
+function updateRec(msg, type) {
+    var el = $('ai-rec');
+    el.innerHTML = msg;
+    el.className = 'rec-box' + (type==='heat' ? ' rec-heat' : type==='cool' ? ' rec-cool' : type==='idle' ? ' rec-idle' : '');
+}
+
+function humLabel(h) {
+    return h<30 ? 'dry' : h<45 ? 'slightly dry' : h<=60 ? 'comfortable' : h<=70 ? 'slightly humid' : 'humid';
+}
+
+// ── Live history & 2-min chart ────────────────────────────────────
+function addToHistory(temp) {
+    tempHistory.push({ts:Date.now(), temp:temp, target:targetTemp});
+    if (tempHistory.length > MAX_HISTORY) tempHistory.shift();
+    renderChart();
+}
+
+function renderChart() {
+    if (tempHistory.length < 2) return;
+    var cv = initCanvas('temp-chart'); if (!cv) return;
+    var ctx=cv.ctx, W=cv.W, H=cv.H;
+    var pad={top:16,right:16,bottom:28,left:46};
+    var cW=W-pad.left-pad.right, cH=H-pad.top-pad.bottom, n=tempHistory.length;
+
+    var vals = tempHistory.map(function(h) {
+        return {temp:isCelsius?h.temp:h.temp*9/5+32, target:isCelsius?h.target:h.target*9/5+32};
+    });
+
+    var allV = vals.map(function(v){return v.temp;}).concat(vals.map(function(v){return v.target;}));
+    var minV=Math.min.apply(null,allV)-0.5, maxV=Math.max.apply(null,allV)+0.5, range=(maxV-minV)||1;
+
+    function xOf(i) { return pad.left + (i/(n-1))*cW; }
+    function yOf(v) { return pad.top  + cH - ((v-minV)/range)*cH; }
+
+    ctx.strokeStyle='#1c2840'; ctx.lineWidth=1;
+    ctx.fillStyle='#4e6580'; ctx.font='10px system-ui'; ctx.textAlign='right';
+    for (var i=0; i<=4; i++) {
+        var gv=minV+(range/4)*i, gy=yOf(gv);
+        ctx.beginPath(); ctx.moveTo(pad.left,gy); ctx.lineTo(pad.left+cW,gy); ctx.stroke();
+        ctx.fillText(gv.toFixed(1)+'°', pad.left-4, gy+4);
+    }
+
+    function drawLine(color, lw, dash, getter) {
+        ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.setLineDash(dash||[]);
+        ctx.beginPath();
+        vals.forEach(function(v,i){i===0?ctx.moveTo(xOf(i),yOf(getter(v))):ctx.lineTo(xOf(i),yOf(getter(v)));});
+        ctx.stroke(); ctx.setLineDash([]);
+    }
+    drawLine('#11c8b5', 1.5, [5,4], function(v){return v.target;});
+    drawLine('#ccd6e8', 2,   [],    function(v){return v.temp;});
+
+    var now=Date.now();
+    ctx.fillStyle='#4e6580'; ctx.font='9px system-ui'; ctx.textAlign='center';
+    [0,0.25,0.5,0.75,1].forEach(function(f){
+        var idx=Math.round(f*(n-1)), ago=Math.round((now-tempHistory[idx].ts)/1000);
+        ctx.fillText(ago<3?'now':'-'+ago+'s', xOf(idx), H-6);
+    });
+
+    ctx.textAlign='left'; ctx.font='10px system-ui';
+    [['#ccd6e8','Indoor',4],['#11c8b5','Target',80]].forEach(function(l){
+        ctx.fillStyle=l[0]; ctx.fillRect(pad.left+l[2], pad.top+4, 12,3);
+        ctx.fillText(l[1], pad.left+l[2]+16, pad.top+11);
+    });
+}
+
+// ── Weather ───────────────────────────────────────────────────────
+async function fetchWeather() {
+    try {
+        var city = ($('city-in').value.trim() || currentCity).replace(/\s*,\s*/g,',');
+        var r = await fetch('https://api.openweathermap.org/data/2.5/weather?q='+encodeURIComponent(city)+'&appid='+WEATHER_KEY+'&units=metric');
+        if (!r.ok) return;
+        var d = await r.json();
+        currentCity=city; outdoorTemp=d.main.temp; outdoorFeels=d.main.feels_like;
+        outdoorHum=d.main.humidity; outdoorDesc=d.weather[0].description;
+        var indoorRef = tempHistory.length > 0 ? tempHistory[tempHistory.length-1].temp : targetTemp;
+        outdoorWarmPolls = (outdoorTemp >= indoorRef) ? outdoorWarmPolls + 1 : 0;
+        outdoorCoolPolls = (outdoorTemp <= indoorRef) ? outdoorCoolPolls + 1 : 0;
+        var cap=function(s){return s.replace(/\b\w/g,function(c){return c.toUpperCase();});};
+        $('city-label').innerText   = d.name+', '+d.sys.country;
+        $('out-temp').innerText     = dispTemp(outdoorTemp);
+        $('out-feels').innerText    = dispTemp(outdoorFeels)+dispUnit();
+        $('out-humidity').innerText = outdoorHum;
+        $('out-wind').innerText     = d.wind.speed.toFixed(1);
+        $('out-pressure').innerText = d.main.pressure;
+        $('out-conditions').innerText = cap(outdoorDesc);
+        $('out-temp-lbl').innerText = 'Temp '+dispUnit();
+        var inp=$('city-in'); inp.value=''; inp.placeholder=d.name+', '+d.sys.country;
+    } catch(e) {}
+}
+
+function updateCity() { fetchWeather(); }
+
+// ── PocketBase: settings ──────────────────────────────────────────
+async function loadSettings() {
+    try {
+        var r = await fetch(PB+'/api/collections/settings/records?perPage=1');
+        if (!r.ok) return;
+        var d = await r.json();
+        if (d.totalItems === 0) {
+            $('setup-modal').style.display = 'flex';
+        } else {
+            var s=d.items[0];
+            settingsId=s.id; targetTemp=s.target_temp||targetTemp; idleBand=s.idle_band||idleBand;
+            isCelsius = s.is_celsius !== undefined ? s.is_celsius : isCelsius;
+            if (s.shutoff_buffer != null) SHUTOFF_BUFFER = s.shutoff_buffer;
+            if (s.cost_kwh    != null) { var el=$('cost-kwh');    if (el) el.value=s.cost_kwh;    }
+            if (s.watt_heater != null) { var el=$('watt-heater'); if (el) el.value=s.watt_heater; }
+            if (s.watt_cooler != null) { var el=$('watt-cooler'); if (el) el.value=s.watt_cooler; }
+            if (s.watt_fan    != null) { var el=$('watt-fan');    if (el) el.value=s.watt_fan;    }
+            if (s.city) { currentCity=s.city; $('city-in').value=s.city; }
+            setUnit(isCelsius);
+            $('target-temp').innerText = dispTemp(targetTemp)+dispUnit();
+            $('idle-band').innerText   = dispBand();
+            var ib2=$('idle-band-2');   if (ib2) ib2.innerText=dispBand();
+            var sbEl=$('shutoff-buffer-val'); if (sbEl) sbEl.innerText=dispDelta(SHUTOFF_BUFFER)+dispUnit();
+        }
+    } catch(e) {}
+}
+
+async function patchSettings() {
+    if (!settingsId) return;
+    var kwh = parseFloat(($('cost-kwh')   ||{}).value) || 25;
+    var wH  = parseFloat(($('watt-heater')||{}).value) || 1000;
+    var wC  = parseFloat(($('watt-cooler')||{}).value) || 1500;
+    var wF  = parseFloat(($('watt-fan')   ||{}).value) || 50;
+    pbPatch('/api/collections/settings/records/'+settingsId, {
+        target_temp:targetTemp, idle_band:idleBand, is_celsius:isCelsius,
+        shutoff_buffer:SHUTOFF_BUFFER,
+        cost_kwh:kwh, watt_heater:wH, watt_cooler:wC, watt_fan:wF
+    });
+}
+
+// ── Startup modal ─────────────────────────────────────────────────
+function modalAdjTemp(delta) {
+    modalTargetTemp = Math.max(10, Math.min(35, Math.round((modalTargetTemp+delta)*2)/2));
+    $('modal-temp-val').innerText = (modalIsCelsius?modalTargetTemp:modalTargetTemp*9/5+32).toFixed(1)+(modalIsCelsius?'°C':'°F');
+}
+
+function modalSetUnit(celsius) {
+    modalIsCelsius=celsius;
+    $('modal-btn-c').className='unit-opt'+(celsius ?' active':'');
+    $('modal-btn-f').className='unit-opt'+(!celsius?' active':'');
+    modalAdjTemp(0);
+}
+
+async function saveSetup() {
+    var city=($('modal-city').value.trim()||'Sydney').replace(/\s*,\s*/g,',');
+    try {
+        var r = await pbPost('/api/collections/settings/records', {
+            target_temp:modalTargetTemp, idle_band:idleBand, city:city, is_celsius:modalIsCelsius,
+            shutoff_buffer:SHUTOFF_BUFFER,
+            cost_kwh:25, watt_heater:1000, watt_cooler:1500, watt_fan:50
+        });
+        if (r) settingsId = (await r.json()).id;
+    } catch(e) {}
+    targetTemp=modalTargetTemp; isCelsius=modalIsCelsius; currentCity=city;
+    $('city-in').value=city;
+    setUnit(isCelsius);
+    $('target-temp').innerText=dispTemp(targetTemp)+dispUnit();
+    $('setup-modal').style.display='none';
+    fetchWeather();
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────
+function toggleSidebar() { $('sidebar').classList.toggle('collapsed'); }
+
+function showView(name) {
+    ['control','history','analysis'].forEach(function(v) {
+        $('view-'+v).style.display = v===name ? '' : 'none';
+        $('nav-' +v).className     = 'nav-btn'+(v===name?' active':'');
+    });
+    if (name==='history')  loadHistory(currentRange);
+    if (name==='analysis') loadAnalysis();
+}
+
+// ── PocketBase: HVAC event logging ────────────────────────────────
+async function openHvacEvent(type, temp) {
+    try {
+        var r = await pbPost('/api/collections/hvac_events/records', {type:type, ts_start:new Date().toISOString(), start_temp:temp, duration_mins:0});
+        if (r) openEventId = (await r.json()).id;
+    } catch(e) {}
+}
+
+async function closeHvacEvent(temp) {
+    if (!openEventId) return;
+    var id=openEventId; openEventId=null;
+    try {
+        var resp = await fetch(PB+'/api/collections/hvac_events/records/'+id);
+        if (!resp.ok) return;
+        var ev = await resp.json();
+        var startMs = ev.ts_start ? new Date(ev.ts_start).getTime() : 0;
+        var dur = startMs ? (Date.now()-startMs)/60000 : 0;
+        pbPatch('/api/collections/hvac_events/records/'+id, {ts_end:new Date().toISOString(), end_temp:temp, duration_mins:parseFloat(dur.toFixed(2))});
+    } catch(e) {}
+}
+
+// ── History view ──────────────────────────────────────────────────
+async function loadHistory(range) {
+    currentRange=range;
+    ['1h','6h','24h','7d'].forEach(function(r) {
+        $('range-'+r).className='btn-range'+(r===range?' active':'');
+    });
+
+    var now=new Date(), from=new Date(now);
+    if      (range==='1h')  from.setHours(now.getHours()-1);
+    else if (range==='6h')  from.setHours(now.getHours()-6);
+    else if (range==='24h') from.setDate(now.getDate()-1);
+    else                     from.setDate(now.getDate()-7);
+
+    var fStr=from.toISOString().replace('T',' ').slice(0,19);
+    var readFilter = encodeURIComponent('ts>="'+fStr+'"');
+    var evFilter   = encodeURIComponent('ts_start>="'+fStr+'"');
+    try {
+        var readItems, evItems;
+        // Readings are written every ~30 s: 1h≈120, 6h≈720, 24h≈2880, 7d≈20160 records.
+        // Fetch enough pages (sort=-ts, oldest→newest after combine) to cover each window.
+        // 7d uses 10 pages (5000 records ≈ 42 h dense coverage; sparse older data still renders).
+        var pageCount = range==='1h' ? 1 : range==='6h' ? 2 : range==='24h' ? 6 : 10;
+        var pageNums = []; for (var _p=1; _p<=pageCount; _p++) pageNums.push(_p);
+        var pages = await Promise.all(pageNums.map(function(pg) {
+            return fetch(PB+'/api/collections/readings/records?sort=-ts&page='+pg+'&perPage=500&filter='+readFilter)
+                .then(function(r){return r.json();});
+        }));
+        // Combine all pages then sort ascending by ts.
+        // (sort=-ts means each page's items are newest→oldest internally; sorting after combine is simpler and correct.)
+        readItems = [];
+        for (var _i=0; _i<pages.length; _i++) readItems = readItems.concat(pages[_i].items||[]);
+        readItems.sort(function(a,b){ return new Date(a.ts).getTime()-new Date(b.ts).getTime(); });
+        var evRes = await fetch(PB+'/api/collections/hvac_events/records?sort=ts_start&perPage=500&filter='+evFilter).then(function(r){return r.json();});
+        evItems = evRes.items||[];
+        renderHistoryChart(readItems, evItems);
+        renderHistorySummary(readItems, evItems);
+        attachHistoryTooltip();
+        renderEventLog(evItems.slice().reverse());
+    } catch(e) {
+        $('event-log').innerHTML='<div class="log-empty">PocketBase offline — start pocketbase.exe to enable history.</div>';
+    }
+}
+
+function renderHistoryChart(readings, events) {
+    var cv=initCanvas('history-chart'); if (!cv) return;
+    var ctx=cv.ctx, W=cv.W, H=cv.H;
+    if (readings.length < 2) {
+        ctx.fillStyle='#4e6580'; ctx.font='13px system-ui'; ctx.textAlign='center';
+        ctx.fillText('No data for this range yet.', W/2, H/2); return;
+    }
+
+    var pad={top:22,right:16,bottom:32,left:46};
+    var cW=W-pad.left-pad.right, cH=H-pad.top-pad.bottom;
+
+    var vals=readings.map(function(r){
+        var tgt = r.target_temp != null ? r.target_temp : targetTemp;
+        return {
+            ts:     new Date(r.ts).getTime(),
+            temp:   isCelsius ? r.indoor_temp : r.indoor_temp*9/5+32,
+            target: isCelsius ? tgt : tgt*9/5+32
+        };
+    });
+
+    // Thin to at most one point per 2px — prevents clustering on dense historical data
+    var maxPts = Math.max(80, Math.floor(cW / 2));
+    if (vals.length > maxPts) {
+        var _step = vals.length / maxPts, _thinned = [];
+        for (var _ti=0; _ti<maxPts; _ti++) _thinned.push(vals[Math.min(vals.length-1, Math.round(_ti*_step))]);
+        vals = _thinned;
+    }
+
+    var minTs=vals[0].ts, maxTs=vals[vals.length-1].ts, tsRange=maxTs-minTs||1;
+    var allV=vals.map(function(v){return v.temp;}).concat(vals.map(function(v){return v.target;}));
+    var minV=Math.min.apply(null,allV)-0.5, vRange=(Math.max.apply(null,allV)+0.5-minV)||1;
+
+    function xOf(ts){ return pad.left+((ts-minTs)/tsRange)*cW; }
+    function yOf(v) { return pad.top+cH-((v-minV)/vRange)*cH; }
+
+    var SC = STATE_COLORS;
+    function scAlpha(hex) {
+        var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+        return 'rgba('+r+','+g+','+b+',0.13)';
+    }
+
+    var evParsed=events.map(function(ev){
+        return {type:ev.type, s:new Date(ev.ts_start).getTime(), e:ev.ts_end?new Date(ev.ts_end).getTime():maxTs, start_temp:ev.start_temp, end_temp:ev.end_temp};
+    });
+
+    evParsed.forEach(function(ev){
+        var x0=xOf(Math.max(minTs,ev.s)), x1=xOf(Math.min(maxTs,ev.e));
+        ctx.fillStyle=scAlpha(SC[ev.type]||SC.cooling);
+        ctx.fillRect(x0, pad.top, Math.max(1,x1-x0), cH);
+    });
+
+    ctx.strokeStyle='#1c2840'; ctx.lineWidth=1;
+    ctx.fillStyle='#4e6580'; ctx.font='10px system-ui'; ctx.textAlign='right';
+    for (var gi=0; gi<=4; gi++) {
+        var gv=minV+(vRange/4)*gi, gy=yOf(gv);
+        ctx.beginPath(); ctx.moveTo(pad.left,gy); ctx.lineTo(pad.left+cW,gy); ctx.stroke();
+        ctx.fillText(gv.toFixed(1)+'°', pad.left-4, gy+4);
+    }
+
+    var tickMs = currentRange==='1h'?900000:currentRange==='6h'?3600000:currentRange==='24h'?14400000:86400000;
+    var firstTick = Math.ceil(minTs/tickMs)*tickMs;
+    ctx.fillStyle='#4e6580'; ctx.font='9px system-ui'; ctx.textAlign='center';
+    for (var t=firstTick; t<=maxTs; t+=tickMs) {
+        var tx=xOf(t); if (tx<pad.left+4||tx>pad.left+cW-4) continue;
+        var d=new Date(t);
+        var lbl=currentRange==='7d'
+            ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+(d.getMonth()+1)+'/'+(d.getDate())
+            : (d.getHours()<10?'0':'')+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
+        ctx.fillText(lbl, tx, H-6);
+        ctx.strokeStyle='#1c2840'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(tx,pad.top+cH); ctx.lineTo(tx,pad.top+cH+4); ctx.stroke();
+    }
+
+    var prevTgt=null;
+    ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    vals.forEach(function(v,i){
+        if (i===0) { ctx.moveTo(xOf(v.ts),yOf(v.target)); }
+        else if (v.target !== prevTgt) {
+            ctx.lineTo(xOf(v.ts),yOf(prevTgt));
+            ctx.lineTo(xOf(v.ts),yOf(v.target));
+        } else {
+            ctx.lineTo(xOf(v.ts),yOf(v.target));
+        }
+        prevTgt=v.target;
+    });
+    ctx.stroke(); ctx.setLineDash([]);
+
+    function stateForSegment(ts0, ts1) {
+        var bestType='idle', bestOverlap=0;
+        for (var j=0; j<evParsed.length; j++) {
+            var overlap=Math.min(ts1,evParsed[j].e)-Math.max(ts0,evParsed[j].s);
+            if (overlap>bestOverlap) { bestOverlap=overlap; bestType=evParsed[j].type; }
+        }
+        return bestOverlap>0 ? bestType : 'idle';
+    }
+    ctx.lineWidth=2; ctx.setLineDash([]);
+    for (var i=1; i<vals.length; i++) {
+        ctx.strokeStyle=SC[stateForSegment(vals[i-1].ts,vals[i].ts)]||SC.idle;
+        ctx.beginPath();
+        ctx.moveTo(xOf(vals[i-1].ts),yOf(vals[i-1].temp));
+        ctx.lineTo(xOf(vals[i].ts),yOf(vals[i].temp));
+        ctx.stroke();
+    }
+
+    var legendItems=[
+        {c:'#f59e0b',dash:true,l:'Target'},
+        {c:SC.heating,l:'Heating'},
+        {c:SC['fan-heat'],l:'Fan(heat)'},
+        {c:SC.cooling,l:'AC'},
+        {c:SC.fan,l:'Fan(cool)'},
+        {c:SC.idle,l:'Idle'}
+    ];
+    ctx.font='9px system-ui'; ctx.lineWidth=1.5;
+    var lx=pad.left+2, ly=11;
+    legendItems.forEach(function(it){
+        ctx.strokeStyle=it.c; ctx.setLineDash(it.dash?[4,3]:[]);
+        ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(lx+12,ly); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle=it.c; ctx.textAlign='left';
+        ctx.fillText(it.l, lx+14, ly+3);
+        lx+=14+ctx.measureText(it.l).width+8;
+    });
+    // Dot-label hint — right-aligned in the legend row
+    var hintTxt = _showDotLabels ? '● labels on' : '○ labels off';
+    ctx.font='8px system-ui'; ctx.fillStyle='#4e6580'; ctx.textAlign='right';
+    ctx.fillText('click °C/°F to toggle  ' + hintTxt, pad.left+cW, ly+3);
+
+    evParsed.forEach(function(ev){
+        var color=SC[ev.type]||SC.idle;
+        function mark(ts, temp, above) {
+            if (temp==null) return;
+            var mx=xOf(ts), my=yOf(isCelsius?temp:temp*9/5+32);
+            if (mx<pad.left||mx>pad.left+cW) return;
+            ctx.beginPath(); ctx.arc(mx,my,4,0,Math.PI*2);
+            ctx.fillStyle=color; ctx.fill();
+            ctx.strokeStyle='#0c1220'; ctx.lineWidth=1.5; ctx.stroke();
+            if (_showDotLabels) {
+                ctx.fillStyle=color; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+                ctx.fillText((isCelsius?temp:temp*9/5+32).toFixed(1)+'°', mx, Math.max(pad.top+10,Math.min(H-pad.bottom-4,my+(above?-8:14))));
+            }
+        }
+        mark(ev.s, ev.start_temp, true);
+        if (ev.e<maxTs) mark(ev.e, ev.end_temp, false);
+    });
+    _histMeta = {vals:vals, evParsed:evParsed, pad:pad, W:W, H:H, minTs:minTs, tsRange:tsRange, minV:minV, vRange:vRange, cW:cW, cH:cH};
+}
+
+function renderEventLog(events) {
+    var el=$('event-log');
+    if (!events.length) { el.innerHTML='<div class="log-empty">No events in this period.</div>'; return; }
+    var rows=events.map(function(ev){
+        var cls=(ev.type==='heating'||ev.type==='fan+heater')?'ev-heat':(ev.type==='fan'||ev.type==='fan-heat')?'ev-fan':'ev-cool';
+        var icon=ev.type==='heating'?'🔥':ev.type==='fan+heater'?'💨🔥':ev.type==='fan-heat'?'💨🌡️':ev.type==='fan'?'💨':ev.type==='fan+ac'?'💨❄️':'❄️';
+        return '<tr class="'+cls+'"><td>'+new Date(ev.ts_start).toLocaleString()+'</td>'
+            +'<td>'+icon+' '+ev.type+'</td>'
+            +'<td>'+(ev.duration_mins?ev.duration_mins.toFixed(1)+' min':'ongoing')+'</td>'
+            +'<td>'+(ev.start_temp!=null?dispTemp(ev.start_temp)+dispUnit():'--')+' → '+(ev.end_temp!=null?dispTemp(ev.end_temp)+dispUnit():'--')+'</td></tr>';
+    }).join('');
+    el.innerHTML='<table class="event-log-table"><thead><tr><th>Date / Time</th><th>Type</th><th>Duration</th><th>Temp Change</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function renderHistorySummary(readings, events) {
+    var el=$('history-summary'); if (!el) return;
+    if (!readings.length && !events.length) { el.style.display='none'; return; }
+    var temps=readings.map(function(r){return isCelsius?r.indoor_temp:r.indoor_temp*9/5+32;});
+    var avgTemp=temps.length?(temps.reduce(function(a,b){return a+b;},0)/temps.length):null;
+    var minTemp=temps.length?Math.min.apply(null,temps):null;
+    var maxTemp=temps.length?Math.max.apply(null,temps):null;
+    var heatingMins=0, coolingMins=0, fanMins=0;
+    events.forEach(function(ev){
+        var m=ev.duration_mins||0;
+        if (ev.type==='heating'||ev.type==='fan+heater') heatingMins+=m;
+        else if (ev.type==='cooling'||ev.type==='fan+ac') coolingMins+=m;
+        else if (ev.type==='fan'||ev.type==='fan-heat') fanMins+=m;
+    });
+    var u=dispUnit();
+    var items=[];
+    if (avgTemp!==null) items.push('<div class="hs-item"><div class="hs-val">'+avgTemp.toFixed(1)+u+'</div><div class="hs-lbl">Avg Temp</div></div>');
+    if (minTemp!==null) items.push('<div class="hs-item"><div class="hs-val cool">'+minTemp.toFixed(1)+u+'</div><div class="hs-lbl">Min Temp</div></div>');
+    if (maxTemp!==null) items.push('<div class="hs-item"><div class="hs-val heat">'+maxTemp.toFixed(1)+u+'</div><div class="hs-lbl">Max Temp</div></div>');
+    items.push('<div class="hs-item"><div class="hs-val heat">'+(heatingMins>0?Math.round(heatingMins)+'m':'—')+'</div><div class="hs-lbl">Heating</div></div>');
+    items.push('<div class="hs-item"><div class="hs-val cool">'+(coolingMins>0?Math.round(coolingMins)+'m':'—')+'</div><div class="hs-lbl">Cooling</div></div>');
+    items.push('<div class="hs-item"><div class="hs-val fan">'+(fanMins>0?Math.round(fanMins)+'m':'—')+'</div><div class="hs-lbl">Fan</div></div>');
+    items.push('<div class="hs-item"><div class="hs-val">'+events.length+'</div><div class="hs-lbl">Events</div></div>');
+    el.innerHTML=items.join(''); el.style.display='flex';
+}
+
+function attachHistoryTooltip() {
+    var canvas=$('history-chart'), tip=$('chart-tooltip');
+    if (!canvas||!tip) return;
+    canvas.onmousemove=function(e) {
+        if (!_histMeta) return;
+        var rect=canvas.getBoundingClientRect();
+        var mx=e.clientX-rect.left;
+        var m=_histMeta;
+        if (mx<m.pad.left||mx>m.pad.left+m.cW) { tip.style.display='none'; return; }
+        var ts=m.minTs+((mx-m.pad.left)/m.cW)*m.tsRange;
+        var nearest=null, minD=Infinity;
+        m.vals.forEach(function(v){var d=Math.abs(v.ts-ts); if(d<minD){minD=d;nearest=v;}});
+        if (!nearest) { tip.style.display='none'; return; }
+        var state='idle';
+        for (var i=0;i<m.evParsed.length;i++){var ev=m.evParsed[i]; if(nearest.ts>=ev.s&&nearest.ts<=ev.e){state=ev.type;break;}}
+        var d=new Date(nearest.ts);
+        var timeStr=d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes()+':'+(d.getSeconds()<10?'0':'')+d.getSeconds();
+        tip.innerHTML='<div class="tip-time">'+timeStr+'</div>'
+            +'<div class="tip-row"><span>Indoor</span><strong>'+nearest.temp.toFixed(1)+'°</strong></div>'
+            +'<div class="tip-row"><span>Target</span><strong>'+nearest.target.toFixed(1)+'°</strong></div>'
+            +'<div class="tip-row"><span>State</span><strong style="color:'+(STATE_COLORS[state]||'#4e6580')+'">'+state+'</strong></div>';
+        var tipX=mx+12, tipY=(e.clientY-rect.top)-90;
+        if (tipX+145>m.W) tipX=mx-155;
+        if (tipY<0) tipY=4;
+        tip.style.left=tipX+'px'; tip.style.top=tipY+'px'; tip.style.display='block';
+    };
+    canvas.onmouseleave=function(){tip.style.display='none';};
+}
+
+// ── Analysis view ─────────────────────────────────────────────────
+async function loadAnalysis() {
+    var ib2=$('idle-band-2');   if (ib2) ib2.innerText=dispBand();
+    var sbEl=$('shutoff-buffer-val'); if (sbEl) sbEl.innerText=dispDelta(SHUTOFF_BUFFER)+dispUnit();
+
+    var from=new Date(); from.setDate(from.getDate()-7);
+    var fStr=from.toISOString().replace('T',' ').slice(0,19);
+    try {
+        var r=await fetch(PB+'/api/collections/hvac_events/records?sort=ts_start&perPage=500&filter='+encodeURIComponent('ts_start>="'+fStr+'"'));
+        analysisCache=(await r.json()).items||[];
+    } catch(e) { analysisCache=[]; }
+    renderRuntimeChart(analysisCache);
+    buildInsights(analysisCache);
+}
+
+function renderRuntimeChart(events) {
+    var cv=initCanvas('runtime-chart',220); if (!cv) return;
+    var ctx=cv.ctx, W=cv.W, H=cv.H;
+
+    var days=[];
+    for (var i=6; i>=0; i--) { var d=new Date(); d.setDate(d.getDate()-i); days.push(d.toISOString().slice(0,10)); }
+
+    var totals={};
+    days.forEach(function(day){totals[day]={heating:0,cooling:0,fan:0};});
+    events.forEach(function(ev){
+        var day=ev.ts_start.slice(0,10), mins=ev.duration_mins||0;
+        if (!totals[day]) return;
+        if      (ev.type==='heating')    totals[day].heating+=mins;
+        else if (ev.type==='cooling')    totals[day].cooling+=mins;
+        else if (ev.type==='fan')        totals[day].fan+=mins;
+        else if (ev.type==='fan+ac')     { totals[day].fan+=mins; totals[day].cooling+=mins; }
+        else if (ev.type==='fan-heat')   totals[day].fan+=mins;
+        else if (ev.type==='fan+heater') { totals[day].fan+=mins; totals[day].heating+=mins; }
+    });
+
+    var maxMins=Math.max(1,Math.max.apply(null,days.map(function(day){return totals[day].heating+totals[day].cooling+totals[day].fan;})));
+    var pad={top:16,right:16,bottom:36,left:46};
+    var cW=W-pad.left-pad.right, cH=H-pad.top-pad.bottom;
+    var groupW=cW/days.length, barW=groupW*0.65, subW=barW/3;
+
+    ctx.strokeStyle='#1c2840'; ctx.lineWidth=1;
+    ctx.fillStyle='#4e6580'; ctx.font='10px system-ui'; ctx.textAlign='right';
+    for (var gi=0; gi<=4; gi++) {
+        var gv=(maxMins/4)*gi, gy=pad.top+cH-(gv/maxMins)*cH;
+        ctx.beginPath(); ctx.moveTo(pad.left,gy); ctx.lineTo(pad.left+cW,gy); ctx.stroke();
+        ctx.fillText(Math.round(gv)+'m', pad.left-4, gy+4);
+    }
+
+    var series=['heating','cooling','fan'], colors=['#f04040','#40a8f8','#24d09a'];
+    days.forEach(function(day,di){
+        var cx=pad.left+di*groupW+groupW/2;
+        series.forEach(function(type,si){
+            var mins=totals[day][type]; if (!mins) return;
+            ctx.fillStyle=colors[si];
+            ctx.fillRect(cx-barW/2+si*subW, pad.top+cH-(mins/maxMins)*cH, subW-1, (mins/maxMins)*cH);
+        });
+        ctx.fillStyle='#4e6580'; ctx.font='9px system-ui'; ctx.textAlign='center';
+        ctx.fillText(day.slice(5), cx, H-8);
+    });
+
+    ctx.textAlign='left'; ctx.font='9px system-ui'; var lx=pad.left;
+    [['Heater','#f04040'],['AC (costly)','#40a8f8'],['Inlet Fan','#24d09a']].forEach(function(l){
+        ctx.fillStyle=l[1]; ctx.fillRect(lx,pad.top+2,10,3);
+        ctx.fillStyle='#4e6580'; ctx.fillText(l[0],lx+14,pad.top+11); lx+=72;
+    });
+}
+
+function refreshInsights() { buildInsights(analysisCache); patchSettings(); }
+
+function buildInsights(events) {
+    var el=$('analysis-insights');
+    if (!events.length) {
+        el.innerHTML='No data yet — HVAC events will appear here once the system logs heating/cooling cycles.';
+        el.className='rec-box'; return;
+    }
+    var kwh=parseFloat($('cost-kwh').value)||25;
+    var wHeat=parseFloat($('watt-heater').value)||1000;
+    var wCool=parseFloat($('watt-cooler').value)||1500;
+    var wFan=parseFloat($('watt-fan').value)||50;
+    var cPk=kwh/100;
+
+    var heaterMins=0, acMins=0, fanRelayMins=0, fanOnlyMins=0;
+    var shortCycles=0, dailyMins={};
+    // Escalation counts: fan→AC and fan-heat→heater transitions
+    var fanCoolTotal=0, fanCoolEscalated=0, fanHeatTotal=0, fanHeatEscalated=0;
+
+    events.forEach(function(ev, i){
+        var mins=ev.duration_mins||0, day=ev.ts_start.slice(0,10);
+        if (mins>0&&mins<5) shortCycles++;
+        dailyMins[day]=(dailyMins[day]||0)+mins;
+        switch(ev.type){
+            case 'heating':    heaterMins+=mins; break;
+            case 'cooling':    acMins+=mins; break;
+            case 'fan':        fanOnlyMins+=mins; fanRelayMins+=mins; fanCoolTotal++; break;
+            case 'fan-heat':   fanOnlyMins+=mins; fanRelayMins+=mins; fanHeatTotal++; break;
+            case 'fan+ac':     acMins+=mins; fanRelayMins+=mins; break;
+            case 'fan+heater': heaterMins+=mins; fanRelayMins+=mins; break;
+        }
+        // Check if this fan event was immediately followed by an appliance escalation
+        var next = events[i+1];
+        if (next && ev.type === 'fan'      && next.type === 'cooling')  fanCoolEscalated++;
+        if (next && ev.type === 'fan-heat' && next.type === 'heating')  fanHeatEscalated++;
+    });
+
+    var costHeat=(heaterMins/60)*(wHeat/1000)*cPk;
+    var costCool=(acMins/60)*(wCool/1000)*cPk;
+    var costFan=(fanRelayMins/60)*(wFan/1000)*cPk;
+    var totalCost=costHeat+costCool+costFan;
+
+    var totalActiveMins=heaterMins+acMins+fanOnlyMins;
+    var efficiency=totalActiveMins>0?Math.round((fanOnlyMins/totalActiveMins)*100):0;
+    var effLabel=efficiency>=70?'excellent':efficiency>=45?'good':efficiency>=20?'fair':'low';
+
+    var activeDays=Math.max(1,Object.keys(dailyMins).length);
+    var avgDailyMins=Math.round(totalActiveMins/activeDays);
+
+    var rateHeat=(wHeat/1000*cPk*100).toFixed(1);
+    var rateCool=(wCool/1000*cPk*100).toFixed(1);
+    var rateFan=(wFan/1000*cPk*100).toFixed(1);
+
+    var lines=[];
+
+    lines.push(
+        'Heater: <strong>'+(heaterMins/60).toFixed(1)+'h</strong>  ·  '+
+        'AC: <strong>'+(acMins/60).toFixed(1)+'h</strong>  ·  '+
+        'Fan: <strong>'+(fanRelayMins/60).toFixed(1)+'h</strong> '+
+        '— avg <strong>'+avgDailyMins+' min/day</strong> HVAC active.'
+    );
+
+    lines.push(
+        'Estimated cost: <strong>A$'+totalCost.toFixed(2)+'</strong> this week '+
+        '(heater A$'+costHeat.toFixed(2)+', AC A$'+costCool.toFixed(2)+', fan A$'+costFan.toFixed(2)+').'
+    );
+
+    lines.push(
+        'Running costs: heater <strong>'+rateHeat+'¢/hr</strong>, AC <strong>'+rateCool+'¢/hr</strong>, fan <strong>'+rateFan+'¢/hr</strong>.'
+    );
+
+    var potentialSave=acMins>0?((acMins/60)*((wCool-wFan)/1000)*cPk).toFixed(2):null;
+    lines.push(
+        'Ventilation efficiency: <strong>'+efficiency+'%</strong> fan-only cycles ('+effLabel+').'+
+        (efficiency<40&&potentialSave&&parseFloat(potentialSave)>0.01
+            ? ' Replacing AC cycles with fan when outdoor is cooler could save up to <strong>A$'+potentialSave+'/wk</strong>.'
+            : efficiency>=70?' Outdoor ventilation is well utilised — appliances activate only when necessary.':'')
+    );
+
+    // Escalation stats (fan-first strategy effectiveness)
+    var escalParts = [];
+    if (fanCoolTotal > 0) {
+        var fanCoolResolved = fanCoolTotal - fanCoolEscalated;
+        var fanCoolPct = Math.round(fanCoolResolved / fanCoolTotal * 100);
+        escalParts.push('cooling: fan resolved <strong>'+fanCoolPct+'%</strong> unaided'+
+            (fanCoolEscalated > 0 ? ', escalated to AC <strong>'+fanCoolEscalated+'×</strong>' : ''));
+    }
+    if (fanHeatTotal > 0) {
+        var fanHeatResolved = fanHeatTotal - fanHeatEscalated;
+        var fanHeatPct = Math.round(fanHeatResolved / fanHeatTotal * 100);
+        escalParts.push('heating: fan resolved <strong>'+fanHeatPct+'%</strong> unaided'+
+            (fanHeatEscalated > 0 ? ', escalated to heater <strong>'+fanHeatEscalated+'×</strong>' : ''));
+    }
+    if (escalParts.length > 0)
+        lines.push('Fan-first strategy — ' + escalParts.join('; ') + '.');
+
+    if (shortCycles>=3)
+        lines.push('<strong>'+shortCycles+' short cycles</strong> (<5 min) out of '+events.length+
+            ' events — consider widening the idle band to prevent rapid cycling and reduce equipment wear.');
+
+    var worstDay=null, worstMins=0;
+    Object.keys(dailyMins).forEach(function(d){ if(dailyMins[d]>worstMins){worstMins=dailyMins[d];worstDay=d;} });
+    if (worstDay&&worstMins>180)
+        lines.push('Peak day: <strong>'+worstDay+'</strong> — '+Math.round(worstMins)+' min HVAC runtime.'+
+            (worstMins>360?' High demand; check insulation or widen the idle band.':''));
+
+    if (acMins>0&&fanOnlyMins>0) {
+        var acFrac=Math.round(acMins/(acMins+fanOnlyMins)*100);
+        if (acFrac>60)
+            lines.push('Cooling split: <strong>'+acFrac+'%</strong> AC, <strong>'+(100-acFrac)+'%</strong> fan. '+
+                'Fan is '+(Math.round((wCool-wFan)/Math.max(1,wFan)))+'× cheaper than AC — prioritise it when outdoor temp allows.');
+    } else if (acMins>0&&fanOnlyMins===0) {
+        lines.push('All cooling via AC this week — no fan-only cycles recorded. If outdoor temp dips below indoor, inlet fan alone can save the AC cost entirely.');
+    }
+
+    el.innerHTML=lines.join('<br>'); el.className='rec-box rec-idle';
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+loadSettings();
+fetchWeather();
+setInterval(fetchWeather, 300000);
+
+        ( async function(){
+          while( true ){
+            // Runs every 2 s — reads DS18B20, drives the state machine, updates display and database.
+
+// D14 (FanEnable) must stay HIGH to power the inlet fan relay board
+turnOn(FanEnable);
+
+var currentTemp = DS18X20_In(tempSensor);
+$("indoor-temp").innerText = currentTemp;
+
+if (!isNaN(parseFloat(currentTemp))) {
+  currentTemp = parseFloat(currentTemp);
+  lastKnownTemp = currentTemp;
+  $("indoor-temp").innerText = dispTemp(currentTemp);
+
+  // diff > 0: room is hotter than target. diff < 0: room is cooler.
+  var diff = currentTemp - targetTemp;
+  $("temp-diff").innerText =
+    (diff >= 0 ? "+" : "") + dispDelta(diff) + dispUnit();
+
+  addToHistory(currentTemp);
+
+  // Trend: °C/hr from last 10 samples (≥3 required to suppress noise)
+  var trendRate = null;
+  if (tempHistory.length >= 3) {
+    var sl = tempHistory.slice(-Math.min(tempHistory.length, 10));
+    var dtHrs = (sl[sl.length - 1].ts - sl[0].ts) / 3600000;
+    if (dtHrs > 0.0001)
+      trendRate = (sl[sl.length - 1].temp - sl[0].temp) / dtHrs;
+  }
+
+  // ── Hard-limit shutoff ────────────────────────────────────────
+  // Devices cut when temperature reaches within SHUTOFF_BUFFER of target.
+  // Set SHUTOFF_BUFFER > 0 to let thermal momentum carry the rest of the way.
+  var shutoffBuf = SHUTOFF_BUFFER || 0;
+
+  // ── State machine (hysteresis) ────────────────────────────────
+  // Entry: only from idle when diff exceeds ±idleBand
+  // Exit:  when diff is within ±shutoffBuf of target
+  if (isAutomatic) {
+    if (hvacState === "idle") {
+      if (diff < -idleBand) hvacState = "heating";
+      else if (diff > idleBand) hvacState = "cooling";
+    }
+    if (hvacState === "heating" && diff >= -shutoffBuf) hvacState = "idle";
+    if (hvacState === "cooling" && diff <= shutoffBuf)  hvacState = "idle";
+  }
+
+  // ── Device selection ──────────────────────────────────────────
+  // Fan-first escalation: start fan-only, add appliance after FAN_MIN_RUN_MINS
+  // if diff still > ½ idleBand. Drop appliance once diff falls within ½ idleBand.
+  var activeDevice;
+  var fanAge = fanStartTime !== null ? (Date.now() - fanStartTime) / 60000 : 0;
+
+  if (hvacState === "idle") {
+    activeDevice = "idle";
+
+  } else if (hvacState === "cooling") {
+    var outdoorCooler = outdoorTemp !== null && outdoorTemp < currentTemp;
+
+    if (prevHvacState === "cooling") {
+      // AC was already running — stay on AC. Never revert to fan mid-cycle.
+      activeDevice = "cooling";
+    } else if (prevHvacState === "fan") {
+      // Fan is running — escalate to AC if it has timed out or outdoor turned warm.
+      var fanExpiredC  = fanAge >= FAN_MIN_RUN_MINS && diff > idleBand * 0.5;
+      var outdoorWarmC = !outdoorCooler && outdoorWarmPolls >= 2;
+      activeDevice = (fanExpiredC || outdoorWarmC) ? "cooling" : "fan";
+    } else {
+      // Fresh activation (was idle) — try fan first if outdoor is cooler, else go straight to AC.
+      activeDevice = outdoorCooler ? "fan" : "cooling";
+    }
+
+  } else {
+    // hvacState === 'heating'
+    var outdoorWarmer = outdoorTemp !== null && outdoorTemp > currentTemp;
+
+    if (prevHvacState === "heating") {
+      // Heater was already running — stay on heater. Never revert to fan mid-cycle.
+      activeDevice = "heating";
+    } else if (prevHvacState === "fan-heat") {
+      // Fan-heat is running — escalate to heater if it has timed out or outdoor turned cool.
+      var fanExpiredH  = fanAge >= FAN_MIN_RUN_MINS && Math.abs(diff) > idleBand * 0.5;
+      var outdoorCoolH = !outdoorWarmer && outdoorCoolPolls >= 2;
+      activeDevice = (fanExpiredH || outdoorCoolH) ? "heating" : "fan-heat";
+    } else {
+      // Fresh activation (was idle) — try fan first if outdoor is warmer, else go straight to heater.
+      activeDevice = outdoorWarmer ? "fan-heat" : "heating";
+    }
+  }
+
+  // ── Opposite-direction escalation ────────────────────────────────
+  // If the fan has been on ≥3 min but temp is moving the WRONG way (≥1°C/hr), escalate immediately.
+  if (hvacState === "cooling"  && activeDevice === "fan"      && trendRate !== null && trendRate >  1.0 && fanAge > 3)
+    activeDevice = "cooling";   // temp rising despite fan → switch to AC now
+  if (hvacState === "heating"  && activeDevice === "fan-heat" && trendRate !== null && trendRate < -1.0 && fanAge > 3)
+    activeDevice = "heating";   // temp falling despite fan → switch to heater now
+
+  var isFanBased =
+    activeDevice === "fan" ||
+    activeDevice === "fan-heat";
+  var wasFanBased =
+    prevHvacState === "fan" ||
+    prevHvacState === "fan-heat";
+  if (isFanBased && !wasFanBased)
+    fanStartTime = Date.now();
+  else if (!isFanBased) fanStartTime = null;
+
+  $("indoor-temp").style.color =
+    hvacState === "cooling"
+      ? "#ef4444"
+      : hvacState === "heating"
+        ? "#38bdf8"
+        : "#2dd4bf";
+
+  // ── AI recommendation text ────────────────────────────────────
+  function buildRec(statusLine) {
+    // Trend arrow prepended to status line
+    var arrow = trendRate === null || Math.abs(trendRate) < 0.2 ? "→" :
+                trendRate > 0 ? "↑" : "↓";
+    var lines = [arrow + " " + statusLine];
+
+    if (trendRate !== null) {
+      var absRate = Math.abs(trendRate) * (isCelsius ? 1 : 9 / 5);
+      var absRateStr = absRate.toFixed(1);
+      var dir = trendRate > 0 ? "rising" : "falling";
+
+      if (Math.abs(trendRate) < 0.2) {
+        lines.push("Temperature is <strong>stable</strong>.");
+      } else {
+        // Context-aware note
+        var note, etaLine = null;
+        if (hvacState === "idle") {
+          var minsToEdge = null;
+          if (trendRate > 0) {
+            // Rising toward upper band
+            minsToEdge = Math.round(Math.abs((idleBand - diff) / trendRate) * 60);
+            note = "Drifting toward upper threshold";
+            if (minsToEdge > 0 && minsToEdge < 120) note += " — HVAC may activate in ~<strong>" + minsToEdge + " min</strong>.";
+            else note += ".";
+          } else {
+            // Falling toward lower band
+            minsToEdge = Math.round(Math.abs((-idleBand - diff) / trendRate) * 60);
+            note = "Drifting toward lower threshold";
+            if (minsToEdge > 0 && minsToEdge < 120) note += " — HVAC may activate in ~<strong>" + minsToEdge + " min</strong>.";
+            else note += ".";
+          }
+        } else if (hvacState === "cooling") {
+          if (trendRate > 0) {
+            note = "⚠ Still climbing — cooling urgently needed.";
+          } else {
+            // Temp falling (correct direction): estimate ETA to shutoff
+            var shutoffDiff = shutoffBuf || 0; // shutoff when diff ≤ shutoffDiff
+            var distToShutoff = diff - shutoffDiff;
+            if (distToShutoff > 0 && Math.abs(trendRate) > 0.05) {
+              var etaMins = Math.round((distToShutoff / Math.abs(trendRate)) * 60);
+              if (etaMins > 0 && etaMins < 240)
+                etaLine = "ETA to target: ~<strong>" + etaMins + " min</strong>.";
+            }
+            note = "Cooling is working — temperature dropping.";
+          }
+        } else {
+          // heating
+          if (trendRate < 0) {
+            note = "⚠ Still falling — heating urgently needed.";
+          } else {
+            // Temp rising (correct direction): estimate ETA to shutoff
+            var distToShutoffH = -diff - (shutoffBuf || 0);
+            if (distToShutoffH > 0 && Math.abs(trendRate) > 0.05) {
+              var etaMinsH = Math.round((distToShutoffH / Math.abs(trendRate)) * 60);
+              if (etaMinsH > 0 && etaMinsH < 240)
+                etaLine = "ETA to target: ~<strong>" + etaMinsH + " min</strong>.";
+            }
+            note = "Heating is working — temperature rising.";
+          }
+        }
+        lines.push("Trend: <strong>" + dir + "</strong> at " + absRateStr + dispUnit() + "/hr — " + note);
+        if (etaLine) lines.push(etaLine);
+      }
+    }
+
+    if (outdoorHum !== null)
+      lines.push("Outdoor humidity: <strong>" + outdoorHum + "%</strong> — " + humLabel(outdoorHum) + ".");
+
+    if (outdoorTemp !== null) {
+      var capStr = (outdoorDesc && outdoorDesc !== "--")
+        ? " (" + outdoorDesc.replace(/\b\w/g, function(c){return c.toUpperCase();}) + ")"
+        : "";
+      lines.push("Outdoor: <strong>" + tempStr(outdoorTemp) + "</strong>" + capStr + ".");
+    }
+
+    return lines.join("<br>");
+  }
+
+  // ── Execute state: drive GPIO outputs and update UI ───────────
+  if (isAutomatic) {
+    $("mode-display").innerText = "Auto";
+    var shutoffCoolTemp = tempStr(targetTemp + shutoffBuf);
+    var shutoffHeatTemp = tempStr(targetTemp - shutoffBuf);
+
+    if (hvacState === "idle") {
+      allOff();
+      ["heater", "cooler", "fan"].forEach(function (d) { setDevice(d, false, ""); });
+      setBadge("idle", "Idle");
+      updateRec(buildRec(
+        "Indoor <strong>" + tempStr(currentTemp) + "</strong> — within " +
+        dispBand() + " of target (" + tempStr(targetTemp) + "). No action required."
+      ), "idle");
+
+    } else if (hvacState === "cooling") {
+      turnOff(RedLed);
+      setDevice("heater", false, "");
+      setBadge("cooling", "Cooling");
+
+      if (activeDevice === "fan") {
+        turnOn(InletFan); turnOff(GreenLed);
+        setDevice("fan", true, "cool"); setDevice("cooler", false, "");
+        updateRec(buildRec(
+          "Indoor <strong>" + tempStr(currentTemp) + "</strong> — " +
+          dispDelta(diff) + dispUnit() + " above target. " +
+          "Outdoor (" + tempStr(outdoorTemp) + ") is cooler — inlet fan ventilating (no AC cost). " +
+          "Shutoff at <strong>" + shutoffCoolTemp + "</strong>."
+        ), "cool");
+      } else {
+        // activeDevice === "cooling" — AC only, fan off
+        turnOn(GreenLed); turnOff(InletFan);
+        setDevice("cooler", true, "cool"); setDevice("fan", false, "");
+        var outNoteC = outdoorTemp !== null
+          ? "Outdoor (" + tempStr(outdoorTemp) + ") not cooler than indoor — AC active."
+          : "No outdoor data — AC active.";
+        updateRec(buildRec(
+          "Indoor <strong>" + tempStr(currentTemp) + "</strong> — " +
+          dispDelta(diff) + dispUnit() + " above target. " +
+          outNoteC + " Shutoff at <strong>" + shutoffCoolTemp + "</strong>."
+        ), "cool");
+      }
+
+    } else {
+      // hvacState === 'heating'
+      turnOff(GreenLed);
+      setDevice("cooler", false, "");
+      setBadge("heating", "Heating");
+
+      if (activeDevice === "fan-heat") {
+        turnOn(InletFan); turnOff(RedLed);
+        setDevice("fan", true, "heat"); setDevice("heater", false, "");
+        updateRec(buildRec(
+          "Indoor <strong>" + tempStr(currentTemp) + "</strong> — " +
+          dispDelta(Math.abs(diff)) + dispUnit() + " below target. " +
+          "Outdoor (" + tempStr(outdoorTemp) + ") is warmer — inlet fan drawing warm air in (no heater cost). " +
+          "Shutoff at <strong>" + shutoffHeatTemp + "</strong>."
+        ), "heat");
+      } else {
+        // activeDevice === "heating" — heater only, fan off
+        turnOff(InletFan); turnOn(RedLed);
+        setDevice("heater", true, "heat"); setDevice("fan", false, "");
+        updateRec(buildRec(
+          "Indoor <strong>" + tempStr(currentTemp) + "</strong> — " +
+          dispDelta(Math.abs(diff)) + dispUnit() + " below target. " +
+          "Heater active. Shutoff at <strong>" + shutoffHeatTemp + "</strong>."
+        ), "heat");
+      }
+    }
+  } else {
+    $("mode-display").innerText = "Manual";
+    var manualLine;
+    var diffStr = dispDelta(Math.abs(diff)) + dispUnit() + (diff < 0 ? " below" : " above") + " target.";
+    if (manualDevice === "heating") {
+      manualLine = "Manual: Heater on. Indoor <strong>" + tempStr(currentTemp) + "</strong> — " + diffStr;
+    } else if (manualDevice === "cooling") {
+      manualLine = "Manual: Cooler/AC on. Indoor <strong>" + tempStr(currentTemp) + "</strong> — " + diffStr;
+    } else if (manualDevice === "fan") {
+      manualLine = "Manual: Inlet fan on. Indoor <strong>" + tempStr(currentTemp) + "</strong> — " + diffStr;
+    } else {
+      manualLine = "Manual mode — all devices off. Indoor <strong>" + tempStr(currentTemp) + "</strong>.";
+    }
+    var manualRecType = (manualDevice === "heating") ? "heat" :
+                        (manualDevice === "cooling" || manualDevice === "fan") ? "cool" : "";
+    updateRec(buildRec(manualLine), manualRecType);
+  }
+
+  // Detect state change (before prevHvacState is updated)
+  var stateChanged = isAutomatic && activeDevice !== prevHvacState;
+
+  if (isAutomatic && stateChanged) {
+    if (prevHvacState !== "idle") closeHvacEvent(currentTemp);
+    if (activeDevice !== "idle") openHvacEvent(activeDevice, currentTemp);
+    prevHvacState = activeDevice;
+  }
+
+  // POST a reading every 15 cycles (≈30 s) or immediately on a state change
+  // — keeps history dense enough for the 1 h chart without flooding the DB
+  _dbTick = (_dbTick || 0) + 1;
+  if (_dbTick % 15 === 0 || stateChanged) {
+    fetch(PB + "/api/collections/readings/records", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        indoor_temp: currentTemp,
+        target_temp: targetTemp || 22.0,
+        hvac_state: isAutomatic ? activeDevice : manualDevice,
+        ts: new Date().toISOString(),
+      }),
+    }).catch(function () {});
+  }
+}
+
+await mSec(2000);
+
+            await mSec(0);
+          }
+        })();
+      </script>
+    </body>
+    </html>
